@@ -30,6 +30,13 @@ pmd {
   ruleSetFiles = files("config/pmd/ruleset.xml")
 }
 
+jacocoTestReport {
+  reports {
+    xml.enabled = true
+    csv.enabled = false
+  }
+}
+
 dependencyUpdates.resolutionStrategy = {
   componentSelection { rules ->
     rules.all { ComponentSelection selection ->
