@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.demo;
+package uk.gov.hmcts.reform.sendletter;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
