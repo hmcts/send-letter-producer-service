@@ -1,0 +1,79 @@
+plugins {
+  id 'application'
+  id 'checkstyle'
+  id 'pmd'
+  id 'jacoco'
+  id 'io.spring.dependency-management' version '1.0.4.RELEASE'
+  id 'org.springframework.boot' version '1.5.9.RELEASE'
+  id 'org.owasp.dependencycheck' version '3.1.0'
+  id 'com.github.ben-manes.versions' version '0.17.0'
+}
+
+group = 'uk.gov.hmcts.reform'
+version = '0.0.1'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+checkstyle {
+  maxWarnings = 0
+  toolVersion = '8.7'
+  // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
+  configDir = new File(rootDir, 'config/checkstyle')
+}
+
+pmd {
+  toolVersion = "5.8.1"
+  ignoreFailures = true
+  sourceSets = [sourceSets.main, sourceSets.test]
+  reportsDir = file("$project.buildDir/reports/pmd")
+  ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
+dependencyUpdates.resolutionStrategy = {
+  componentSelection { rules ->
+    rules.all { ComponentSelection selection ->
+      boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
+        selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+      }
+      if (rejected) {
+        selection.reject('Release candidate')
+      }
+    }
+  }
+}
+
+// https://jeremylong.github.io/DependencyCheck/dependency-check-gradle/configuration.html
+dependencyCheck {
+  // Specifies if the build should be failed if a CVSS score above a specified level is identified.
+  // range of 0-10 fails the build, anything greater and it doesn't fail the build
+  failBuildOnCVSS = System.getProperty('dependencyCheck.failBuild') == 'true' ? 0 : 11
+  suppressionFile = 'dependency-check-suppressions.xml'
+}
+
+def springBootVersion = plugins.getPlugin('org.springframework.boot').class.package.implementationVersion
+
+repositories {
+  jcenter()
+}
+
+def versions = [
+  springfoxSwagger: '2.7.0'
+]
+
+dependencies {
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBootVersion
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBootVersion
+
+  compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
+  compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
+
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: '1.4.0'
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: '1.4.0'
+  compile group: 'uk.gov.hmcts.reform', name: 'http-proxy-spring-boot-autoconfigure', version: '1.1.0'
+  compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-hystrix', version: '1.4.0.RELEASE'
+  compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-hystrix-dashboard', version: '1.4.0.RELEASE'
+
+  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+}
