@@ -1,6 +1,5 @@
 server:
-  # TODO: change to your application's port number
-  port: 4550
+  port: 8485
 
 management:
   security:

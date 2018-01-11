@@ -1,13 +1,11 @@
 FROM openjdk:8-jre
 
-COPY build/install/spring-boot-template /opt/app/
+COPY build/install/send-letter-service /opt/app/
 
 WORKDIR /opt/app
 
-# TODO: change the port number to the one your application is set to listen on
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD http_proxy="" curl --silent --fail http://localhost:4550/health
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD http_proxy="" curl --silent --fail http://localhost:8485/health
 
-# TODO: change to your application's port number
-EXPOSE 4550
+EXPOSE 8485
 
-ENTRYPOINT ["/opt/app/bin/spring-boot-template"]
+ENTRYPOINT ["/opt/app/bin/send-letter-service"]
