@@ -7,11 +7,10 @@ module "send-letter-service-api" {
   ilbIp    = "${var.ilbIp}"
 
   app_settings = {
-    REDIS_HOST                   = "${module.redis-cache.host_name}"
-    REDIS_PORT                   = "${module.redis-cache.redis_port}"
-    REDIS_PASSWORD               = "${module.redis-cache.access_key}"
+    REDIS_HOST     = "${module.redis-cache.host_name}"
+    REDIS_PORT     = "${module.redis-cache.redis_port}"
+    REDIS_PASSWORD = "${module.redis-cache.access_key}"
   }
-
 }
 
 module "redis-cache" {
