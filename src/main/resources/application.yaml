@@ -4,3 +4,13 @@ server:
 management:
   security:
     enabled: ${MANAGEMENT_SECURITY_ENABLED:true}
+
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
+  password: ${REDIS_PASSWORD}
+
+ttlInSeconds: ${TTL_IN_SECONDS:3600}
+
+notify:
+  stub: ${STUB_NOTIFY:false}
