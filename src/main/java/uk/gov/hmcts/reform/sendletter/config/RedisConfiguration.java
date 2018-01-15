@@ -12,9 +12,9 @@ public class RedisConfiguration {
 
     @Bean
     public RedissonClient redisClient(
-        @Value("redis.host") String host,
-        @Value("redis.port") int port,
-        @Value("redis.password") String password
+        @Value("${redis.host}") String host,
+        @Value("${redis.port}") int port,
+        @Value("${redis.password}") String password
     ) {
         Config config = new Config();
         config.useSingleServer()

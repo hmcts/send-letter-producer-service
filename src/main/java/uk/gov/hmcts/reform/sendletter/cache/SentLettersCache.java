@@ -22,7 +22,7 @@ public class SentLettersCache {
     public SentLettersCache(
         RedissonClient redisClient,
         LetterChecksumGenerator checksumChecker,
-        @Value("ttlInSeconds") long ttlInSeconds
+        @Value("${ttlInSeconds}") long ttlInSeconds
     ) {
         this.redisCache = redisClient.getSetCache("sent_letters");
         this.checksumChecker = checksumChecker;
