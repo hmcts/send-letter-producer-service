@@ -11,6 +11,9 @@ services:
     image: docker.artifactory.reform.hmcts.net/reform/send-letter-service
     container_name: send-letter-service
     environment:
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_PASSWORD
       # these environment variables are used by java-logging library
       - ROOT_APPENDER
       - JSON_CONSOLE_PRETTY_PRINT

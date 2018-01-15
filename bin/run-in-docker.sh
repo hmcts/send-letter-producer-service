@@ -14,7 +14,7 @@ print_help() {
     --help, -h                    Print this help block
 
   Available parameters:
-
+    REDIS_PORT  Defaults to '6379'
   "
 }
 
@@ -22,11 +22,8 @@ print_help() {
 GRADLE_CLEAN=false
 GRADLE_INSTALL=false
 
-# TODO custom environment variables application requires.
-# TODO also consider enlisting them in help string above ^
-# TODO sample: DB_PASSWORD   Defaults to 'dev'
 # environment variables
-#DB_PASSWORD=dev
+REDIS_PORT="6379"
 #S2S_URL=localhost
 #S2S_SECRET=secret
 
@@ -45,9 +42,9 @@ execute_script() {
     ./gradlew installDist
   fi
 
-#  echo "Assigning environment variables.."
-#
-#  export DB_PASSWORD=${DB_PASSWORD}
+  echo "Assigning environment variables.."
+
+  export REDIS_PORT=${REDIS_PORT}
 #  export S2S_URL=${S2S_URL}
 #  export S2S_SECRET=${S2S_SECRET}
 
@@ -63,7 +60,7 @@ while true ; do
     -i|--install) GRADLE_INSTALL=true ; shift ;;
     -p|--param)
       case "$2" in
-#        DB_PASSWORD=*) DB_PASSWORD="${2#*=}" ; shift 2 ;;
+        REDIS_PORT=*) REDIS_PORT="${2#*=}" ; shift 2 ;;
 #        S2S_URL=*) S2S_URL="${2#*=}" ; shift 2 ;;
 #        S2S_SECRET=*) S2S_SECRET="${2#*=}" ; shift 2 ;;
         *) shift 2 ;;
