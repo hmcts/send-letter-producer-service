@@ -21,7 +21,7 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "idam.s2s-auth.enabled", havingValue = "false")
-    public AuthTokenValidator tokenValidator() {
+    public AuthTokenValidator tokenValidatorStub() {
         return new AuthTokenValidator() {
             public void validate(String token) {
                 throw new NotImplementedException();

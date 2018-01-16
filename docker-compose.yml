@@ -12,7 +12,7 @@ services:
     container_name: send-letter-service
     environment:
       - REDIS_ENABLED
-      - REDIS_HOST
+      - REDIS_HOST=send-letter-redis
       - REDIS_PORT
       - REDIS_PASSWORD
       - STUB_NOTIFY
@@ -25,3 +25,12 @@ services:
       - REFORM_ENVIRONMENT
     ports:
       - $SERVER_PORT:$SERVER_PORT
+    depends_on:
+      - send-letter-redis
+  send-letter-redis:
+    build:
+      context: docker/redis
+    image: docker.artifactory.reform.hmcts.net/reform/send-letter-redis
+    container_name: send-letter-redis
+    ports:
+      - 6379:6379

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sendletter.config;
 
+import com.google.common.base.Strings;
 import org.redisson.Redisson;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,8 +25,8 @@ public class RedisConfiguration {
     ) {
         Config config = new Config();
         config.useSingleServer()
-            .setAddress(host + ":" + port)
-            .setPassword(password);
+            .setAddress("redis://" + host + ":" + port)
+            .setPassword(Strings.isNullOrEmpty(password) ? null : password);
 
         return new SentLettersRedisCache(
             Redisson.create(config),
