@@ -18,3 +18,5 @@
 *.ipr
 
 .DS_store
+
+application-default.yaml
