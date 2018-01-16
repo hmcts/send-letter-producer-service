@@ -11,6 +11,7 @@ services:
     image: docker.artifactory.reform.hmcts.net/reform/send-letter-service
     container_name: send-letter-service
     environment:
+      - REDIS_ENABLED
       - REDIS_HOST
       - REDIS_PORT
       - REDIS_PASSWORD

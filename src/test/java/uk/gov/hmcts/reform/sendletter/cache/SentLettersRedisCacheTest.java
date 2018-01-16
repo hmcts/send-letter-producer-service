@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SentLettersCacheTest {
+public class SentLettersRedisCacheTest {
 
     private @Mock RedissonClient redissonClient;
     private @Mock RSetCache<String> redisCache;
@@ -36,7 +36,7 @@ public class SentLettersCacheTest {
     @Test
     public void should_use_letter_checksum_as_value() {
         // given
-        SentLettersCache cache = new SentLettersCache(redissonClient, checksumGenerator, 123);
+        SentLettersCache cache = new SentLettersRedisCache(redissonClient, checksumGenerator, 123);
 
         given(checksumGenerator.generateChecksum(any(Letter.class)))
             .willReturn("abcd1234");
@@ -52,7 +52,7 @@ public class SentLettersCacheTest {
     public void should_set_ttl_for_specified_number_of_seconds() {
         // given
         long ttlInSeconds = 3_600;
-        SentLettersCache cache = new SentLettersCache(redissonClient, checksumGenerator, ttlInSeconds);
+        SentLettersCache cache = new SentLettersRedisCache(redissonClient, checksumGenerator, ttlInSeconds);
 
         // when
         cache.add(sampleLetter());
@@ -64,7 +64,7 @@ public class SentLettersCacheTest {
     @Test
     public void should_use_letter_checksum_when_removing_items_from_cache() {
         // given
-        SentLettersCache cache = new SentLettersCache(redissonClient, checksumGenerator, 123);
+        SentLettersCache cache = new SentLettersRedisCache(redissonClient, checksumGenerator, 123);
 
         given(checksumGenerator.generateChecksum(any(Letter.class))).willReturn("abcd1234");
 

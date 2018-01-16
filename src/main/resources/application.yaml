@@ -6,7 +6,8 @@ management:
     enabled: ${MANAGEMENT_SECURITY_ENABLED:true}
 
 redis:
-  host: ${REDIS_HOST:localhost}
+  enabled: ${REDIS_ENABLED:true}
+  host: ${REDIS_HOST:redis://localhost}
   port: ${REDIS_PORT:6379}
   password: ${REDIS_PASSWORD:}
 
