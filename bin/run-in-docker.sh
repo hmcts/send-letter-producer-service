@@ -16,6 +16,7 @@ print_help() {
   Available parameters:
     REDIS_ENABLED   Defaults to 'false'
     REDIS_PORT      Defaults to '6379'
+    S2S_URL         Defaults to 'localhost'
     STUB_NOTIFY     Defaults to 'true'
   "
 }
@@ -28,7 +29,7 @@ GRADLE_INSTALL=false
 REDIS_ENABLED=false
 REDIS_PORT="6379"
 STUB_NOTIFY=true
-#S2S_URL=localhost
+S2S_URL=localhost
 #S2S_SECRET=secret
 
 execute_script() {
@@ -51,7 +52,7 @@ execute_script() {
   export REDIS_ENABLED=${REDIS_ENABLED}
   export REDIS_PORT=${REDIS_PORT}
   export STUB_NOTIFY=${STUB_NOTIFY}
-#  export S2S_URL=${S2S_URL}
+  export S2S_URL=${S2S_URL}
 #  export S2S_SECRET=${S2S_SECRET}
 
   echo "Bringing up docker containers.."
@@ -69,7 +70,7 @@ while true ; do
         REDIS_ENABLED=*) REDIS_ENABLED="${2#*=}" ; shift 2 ;;
         REDIS_PORT=*) REDIS_PORT="${2#*=}" ; shift 2 ;;
         STUB_NOTIFY=*) STUB_NOTIFY="${2#*=}" ; shift 2 ;;
-#        S2S_URL=*) S2S_URL="${2#*=}" ; shift 2 ;;
+        S2S_URL=*) S2S_URL="${2#*=}" ; shift 2 ;;
 #        S2S_SECRET=*) S2S_SECRET="${2#*=}" ; shift 2 ;;
         *) shift 2 ;;
       esac ;;
