@@ -14,7 +14,7 @@ print_help() {
     --help, -h                    Print this help block
 
   Available parameters:
-    REDIS_ENABLED   Defaults to 'false'
+    REDIS_ENABLED   Defaults to 'true'
     REDIS_PORT      Defaults to '6379'
     S2S_URL         Defaults to 'localhost'
     STUB_NOTIFY     Defaults to 'true'
@@ -26,7 +26,7 @@ GRADLE_CLEAN=false
 GRADLE_INSTALL=false
 
 # environment variables
-REDIS_ENABLED=false
+REDIS_ENABLED=true
 REDIS_PORT="6379"
 STUB_NOTIFY=true
 S2S_URL=localhost
