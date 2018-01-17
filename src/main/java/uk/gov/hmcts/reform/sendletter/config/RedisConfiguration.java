@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sendletter.cache.SentLettersCache;
-import uk.gov.hmcts.reform.sendletter.cache.SentLettersNullCache;
+import uk.gov.hmcts.reform.sendletter.cache.SentLettersInMemoryCache;
 import uk.gov.hmcts.reform.sendletter.cache.SentLettersRedisCache;
 import uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator;
 
@@ -37,7 +37,7 @@ public class RedisConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "redis.enabled", havingValue = "false")
-    public SentLettersCache getNullCache() {
-        return new SentLettersNullCache();
+    public SentLettersCache getInMemoryCache() {
+        return new SentLettersInMemoryCache(new LetterChecksumGenerator());
     }
 }
