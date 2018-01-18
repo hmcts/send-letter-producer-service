@@ -23,4 +23,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity handleLetterAlreadySentException() {
         return badRequest().body("Can't send the same letter twice");
     }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity handleInternalException() {
+        return status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
 }
