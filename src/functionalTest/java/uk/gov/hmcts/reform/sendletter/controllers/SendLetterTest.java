@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,9 +14,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.cache.SentLettersCache;
-import uk.gov.hmcts.reform.sendletter.config.MockConfiguration;
+import uk.gov.hmcts.reform.sendletter.cache.SentLettersInMemoryCache;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.notify.INotifyClient;
+import uk.gov.hmcts.reform.sendletter.notify.NotifyClientStub;
+import uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,11 +34,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Import(MockConfiguration.class)
 public class SendLetterTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private LetterChecksumGenerator generator;
 
     @SpyBean
     private LetterService service;
@@ -50,6 +53,13 @@ public class SendLetterTest {
 
     @SpyBean
     private INotifyClient notifyClient;
+
+    @Test
+    public void check_integration_spies() {
+        // just making sure using correct implementation instead of mocks/stubs
+        assertThat(cache.getClass().getSimpleName()).startsWith(SentLettersInMemoryCache.class.getSimpleName());
+        assertThat(notifyClient.getClass().getSimpleName()).startsWith(NotifyClientStub.class.getSimpleName());
+    }
 
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
@@ -95,7 +105,7 @@ public class SendLetterTest {
 
     private ResultActions send(String content) throws Exception {
         BDDMockito
-            .given(MockConfiguration.GENERATOR.generateChecksum(any(Letter.class)))
+            .given(generator.generateChecksum(any(Letter.class)))
             .willReturn(content);
 
         MockHttpServletRequestBuilder request =

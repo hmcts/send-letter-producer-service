@@ -3,8 +3,10 @@ package uk.gov.hmcts.reform.sendletter.config;
 import com.google.common.base.Strings;
 import org.redisson.Redisson;
 import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.sendletter.cache.SentLettersCache;
@@ -15,7 +17,10 @@ import uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator;
 @Configuration
 public class RedisConfiguration {
 
-    @Bean
+    @Autowired
+    private ApplicationContext context;
+
+    @Bean("redisCache")
     @ConditionalOnProperty(name = "redis.enabled", havingValue = "true")
     public SentLettersCache getRedisCache(
         @Value("${redis.host}") String host,
@@ -30,14 +35,14 @@ public class RedisConfiguration {
 
         return new SentLettersRedisCache(
             Redisson.create(config),
-            new LetterChecksumGenerator(),
+            context.getBean(LetterChecksumGenerator.class),
             ttlInSeconds
         );
     }
 
-    @Bean
+    @Bean("inMemoryCache")
     @ConditionalOnProperty(name = "redis.enabled", havingValue = "false")
     public SentLettersCache getInMemoryCache() {
-        return new SentLettersInMemoryCache(new LetterChecksumGenerator());
+        return new SentLettersInMemoryCache(context.getBean(LetterChecksumGenerator.class));
     }
 }
