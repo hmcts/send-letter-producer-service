@@ -8,13 +8,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.cache.SentLettersCache;
-import uk.gov.hmcts.reform.sendletter.cache.SentLettersInMemoryCache;
+import uk.gov.hmcts.reform.sendletter.cache.SentLettersRedisCache;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.notify.INotifyClient;
 import uk.gov.hmcts.reform.sendletter.notify.NotifyClientStub;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@TestPropertySource(locations = "classpath:application-integration.properties")
 public class SendLetterTest {
 
     @Autowired
@@ -57,7 +59,7 @@ public class SendLetterTest {
     @Test
     public void check_integration_spies() {
         // just making sure using correct implementation instead of mocks/stubs
-        assertThat(cache.getClass().getSimpleName()).startsWith(SentLettersInMemoryCache.class.getSimpleName());
+        assertThat(cache.getClass().getSimpleName()).startsWith(SentLettersRedisCache.class.getSimpleName());
         assertThat(notifyClient.getClass().getSimpleName()).startsWith(NotifyClientStub.class.getSimpleName());
     }
 

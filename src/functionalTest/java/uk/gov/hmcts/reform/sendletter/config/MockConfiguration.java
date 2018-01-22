@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import uk.gov.hmcts.reform.sendletter.cache.SentLettersCache;
 import uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator;
@@ -17,6 +18,7 @@ public class MockConfiguration {
     private ApplicationContext context;
 
     @Bean
+    @DependsOn("redisServer")
     @Primary
     public SentLettersCache sentLettersCache(@Value("${redis.enabled}") boolean isRedisEnabled) {
         return (SentLettersCache) context.getBean(isRedisEnabled ? "redisCache" : "inMemoryCache");
