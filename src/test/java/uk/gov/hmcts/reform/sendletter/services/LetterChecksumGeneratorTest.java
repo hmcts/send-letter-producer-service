@@ -4,7 +4,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.SampleData;
 
 public class LetterChecksumGeneratorTest {
 
@@ -17,6 +17,6 @@ public class LetterChecksumGeneratorTest {
 
         exception.expect(NotImplementedException.class);
 
-        generator.generateChecksum(new Letter());
+        generator.generateChecksum(SampleData.letter());
     }
 }

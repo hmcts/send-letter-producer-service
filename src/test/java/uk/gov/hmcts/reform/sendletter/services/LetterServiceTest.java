@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.cache.SentLettersCache;
 import uk.gov.hmcts.reform.sendletter.exceptions.LetterAlreadySentException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
@@ -24,7 +25,7 @@ public class LetterServiceTest {
     @Mock private SentLettersCache cache;
     @Mock private INotifyClient notifyClient;
 
-    private final Letter letter = new Letter();
+    private final Letter letter = SampleData.letter();
 
     private LetterService service;
 

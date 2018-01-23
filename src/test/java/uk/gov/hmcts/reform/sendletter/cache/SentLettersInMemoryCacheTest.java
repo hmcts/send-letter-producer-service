@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator;
 
@@ -35,7 +36,7 @@ public class SentLettersInMemoryCacheTest {
         given(checksumGen.generateChecksum(any())).willReturn(checksum);
 
         // when
-        boolean added = cache.add(new Letter());
+        boolean added = cache.add(SampleData.letter());
 
         // then
         assertThat(added).isTrue();
@@ -45,7 +46,7 @@ public class SentLettersInMemoryCacheTest {
     @Test
     public void add_should_return_false_if_letter_was_already_added_earlier() {
         // given
-        Letter letter = new Letter();
+        Letter letter = SampleData.letter();
         String checksum = "abcd1234";
         given(checksumGen.generateChecksum(any())).willReturn(checksum);
 
@@ -61,7 +62,7 @@ public class SentLettersInMemoryCacheTest {
     @Test
     public void should_remove_letter_from_set() {
         // given
-        Letter letter = new Letter();
+        Letter letter = SampleData.letter();
         given(checksumGen.generateChecksum(any())).willReturn("abcd1234");
 
         // when

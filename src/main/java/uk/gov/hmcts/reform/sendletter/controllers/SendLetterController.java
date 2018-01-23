@@ -14,8 +14,6 @@ import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
-import java.util.Map;
-
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
@@ -43,11 +41,9 @@ public class SendLetterController {
     })
     public ResponseEntity<Void> sendLetter(
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
-        @RequestBody Map<String, String> addressDetails
+        @RequestBody Letter letter
     ) {
         tokenValidator.getServiceName(serviceAuthHeader);
-        // TODO: Currently all the inputs and outputs are not known.Need to update this later.
-        Letter letter = new Letter();
         letterService.send(letter);
 
         return ok().build();

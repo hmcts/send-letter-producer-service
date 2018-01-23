@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.redisson.api.RSetCache;
 import org.redisson.api.RedissonClient;
+import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator;
 
@@ -42,7 +43,7 @@ public class SentLettersRedisCacheTest {
             .willReturn("abcd1234");
 
         // when
-        cache.add(new Letter());
+        cache.add(SampleData.letter());
 
         // then
         verify(redisCache).add(eq("abcd1234"), anyLong(), any(TimeUnit.class));
@@ -55,7 +56,7 @@ public class SentLettersRedisCacheTest {
         SentLettersCache cache = new SentLettersRedisCache(redissonClient, checksumGenerator, ttlInSeconds);
 
         // when
-        cache.add(sampleLetter());
+        cache.add(SampleData.letter());
 
         // then
         verify(redisCache).add(anyString(), eq(ttlInSeconds), eq(TimeUnit.SECONDS));
@@ -69,13 +70,9 @@ public class SentLettersRedisCacheTest {
         given(checksumGenerator.generateChecksum(any(Letter.class))).willReturn("abcd1234");
 
         // when
-        cache.remove(new Letter());
+        cache.remove(SampleData.letter());
 
         // then
         verify(redisCache).remove("abcd1234");
-    }
-
-    private Letter sampleLetter() {
-        return new Letter();
     }
 }

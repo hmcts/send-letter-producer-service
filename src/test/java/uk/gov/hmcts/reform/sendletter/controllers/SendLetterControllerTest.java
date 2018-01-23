@@ -49,12 +49,24 @@ public class SendLetterControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void should_return_200_if_letter_is_valid() throws Exception {
+        sendLetter()
+            .andExpect(status().isOk());
+    }
+
     private ResultActions sendLetter() throws Exception {
+        String letterJson = "{"
+            + "\"template\": \"abc\","
+            + "\"values\": { \"a\": \"b\" },"
+            + "\"type\": \"typeA\""
+            + "}";
+
         return mockMvc.perform(
             post("/letters")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("ServiceAuthorization", "invalid token")
-                .content("{ \"a\": \"b\"}")
+                .content(letterJson)
         );
     }
 }
