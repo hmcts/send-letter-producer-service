@@ -1,6 +1,6 @@
 variable "product" {
   type    = "string"
-  default = "send-letter-service"
+  default = "send-letter-producer-service"
 }
 
 variable "location_api" {

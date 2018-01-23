@@ -1,8 +1,8 @@
-# Send Letter Service
+# Send Letter Producer Service
 
-[![Build Status](https://travis-ci.org/hmcts/send-letter-service.svg?branch=master)](https://travis-ci.org/hmcts/send-letter-service)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2f78908ffd7f404da2c7d3c855809ac0)](https://www.codacy.com/app/HMCTS/send-letter-service)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/2f78908ffd7f404da2c7d3c855809ac0)](https://www.codacy.com/app/HMCTS/send-letter-service)
+[![Build Status](https://travis-ci.org/hmcts/send-letter-producer-service.svg?branch=master)](https://travis-ci.org/hmcts/send-letter-producer-service)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2f78908ffd7f404da2c7d3c855809ac0)](https://www.codacy.com/app/HMCTS/send-letter-producer-service)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/2f78908ffd7f404da2c7d3c855809ac0)](https://www.codacy.com/app/HMCTS/send-letter-producer-service)
 
 ## Building and deploying the application
 

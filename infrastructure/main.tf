@@ -1,5 +1,5 @@
 
-module "send-letter-service-api" {
+module "send-letter-producer-service-api" {
   source   = "git@github.com/hmcts/terraform-module-webapp.git"
   product  = "${var.product}"
   location = "${var.location_api}"

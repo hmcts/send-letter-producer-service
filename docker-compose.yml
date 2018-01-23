@@ -1,15 +1,15 @@
 version: '2.1'
 
 services:
-  send-letter-service:
+  send-letter-producer-service:
     build:
       context: .
       args:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: docker.artifactory.reform.hmcts.net/reform/send-letter-service
-    container_name: send-letter-service
+    image: docker.artifactory.reform.hmcts.net/reform/send-letter-producer-service
+    container_name: send-letter-producer-service
     environment:
       - REDIS_ENABLED
       - REDIS_HOST=send-letter-redis
