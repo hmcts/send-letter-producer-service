@@ -54,9 +54,15 @@ public class SendLetterTest {
         assertThat(notifyClient.getClass().getSimpleName()).startsWith(NotifyClientStub.class.getSimpleName());
     }
 
+    private static final String LETTER_JSON = "{"
+        + "\"template\": \"abc\","
+        + "\"values\": { \"a\": \"b\" },"
+        + "\"type\": \"typeA\""
+        + "}";
+
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
-        send("{\"letter\":\"singleton\"}").andExpect(status().isOk());
+        send(LETTER_JSON).andExpect(status().isOk());
 
         verify(notifyClient, times(1)).send(any(Letter.class));
         String serviceName = verify(validator, times(1)).getServiceName(anyString());
@@ -68,7 +74,7 @@ public class SendLetterTest {
     public void should_return_500_when_notification_has_failed() throws Exception {
         BDDMockito.willThrow(Exception.class).given(notifyClient).send(any(Letter.class));
 
-        send("{\"letter\":\"i don't want to be notified\"}").andExpect(status().isInternalServerError());
+        send(LETTER_JSON).andExpect(status().isInternalServerError());
 
         verify(notifyClient, times(1)).send(any(Letter.class));
     }

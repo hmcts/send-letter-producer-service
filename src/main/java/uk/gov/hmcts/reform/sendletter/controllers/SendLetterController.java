@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -14,9 +15,12 @@ import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
+import javax.validation.Valid;
+
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
+@Validated
 @RequestMapping(
     path = "/letters",
     produces = {MediaType.APPLICATION_JSON_VALUE}
@@ -41,7 +45,7 @@ public class SendLetterController {
     })
     public ResponseEntity<Void> sendLetter(
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
-        @RequestBody Letter letter
+        @Valid @RequestBody Letter letter
     ) {
         tokenValidator.getServiceName(serviceAuthHeader);
         letterService.send(letter);

@@ -13,9 +13,11 @@ import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -31,28 +33,46 @@ public class SendLetterControllerTest {
         given(validator.getServiceName(anyString()))
             .willThrow(InvalidTokenException.class);
 
-        sendLetter()
+        sendValidLetter()
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void should_return_200_if_letter_is_valid() throws Exception {
-        sendLetter()
+        sendValidLetter()
             .andExpect(status().isOk());
     }
 
-    private ResultActions sendLetter() throws Exception {
-        String letterJson = "{"
+    @Test
+    public void should_return_400_if_letter_is_invalid() throws Exception {
+        sendLetterWithoutType()
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("errors")));
+    }
+
+    private ResultActions sendValidLetter() throws Exception {
+
+        return sendLetter("{"
             + "\"template\": \"abc\","
             + "\"values\": { \"a\": \"b\" },"
             + "\"type\": \"typeA\""
-            + "}";
+            + "}");
+    }
 
+    private ResultActions sendLetterWithoutType() throws Exception {
+
+        return sendLetter("{"
+            + "\"template\": \"abc\","
+            + "\"values\": { \"a\": \"b\" }"
+            + "}");
+    }
+
+    private ResultActions sendLetter(String json) throws Exception {
         return mockMvc.perform(
             post("/letters")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("ServiceAuthorization", "invalid token")
-                .content(letterJson)
+                .content(json)
         );
     }
 }
