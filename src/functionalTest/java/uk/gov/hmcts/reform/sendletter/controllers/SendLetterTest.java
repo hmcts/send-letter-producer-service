@@ -8,14 +8,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
-import uk.gov.hmcts.reform.sendletter.cache.SentLettersCache;
-import uk.gov.hmcts.reform.sendletter.cache.SentLettersRedisCache;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.notify.INotifyClient;
 import uk.gov.hmcts.reform.sendletter.notify.NotifyClientStub;
@@ -29,13 +26,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application-integration.properties")
 public class SendLetterTest {
 
     @Autowired
@@ -51,15 +46,11 @@ public class SendLetterTest {
     private AuthTokenValidator validator;
 
     @SpyBean
-    private SentLettersCache cache;
-
-    @SpyBean
     private INotifyClient notifyClient;
 
     @Test
     public void check_integration_spies() {
         // just making sure using correct implementation instead of mocks/stubs
-        assertThat(cache.getClass().getSimpleName()).startsWith(SentLettersRedisCache.class.getSimpleName());
         assertThat(notifyClient.getClass().getSimpleName()).startsWith(NotifyClientStub.class.getSimpleName());
     }
 
@@ -67,24 +58,10 @@ public class SendLetterTest {
     public void should_return_200_when_single_letter_is_sent() throws Exception {
         send("{\"letter\":\"singleton\"}").andExpect(status().isOk());
 
-        verify(cache, times(1)).add(any(Letter.class));
-        verify(cache, never()).remove(any(Letter.class));
         verify(notifyClient, times(1)).send(any(Letter.class));
         String serviceName = verify(validator, times(1)).getServiceName(anyString());
 
         assertThat(serviceName).isNull();// make sure validator is void as per configuration
-    }
-
-    @Test
-    public void should_return_400_when_sending_letter_twice() throws Exception {
-        String letter = "{\"letter\":\"duplicate\"}";
-        send(letter).andExpect(status().isOk());
-        send(letter).andExpect(status().isBadRequest())
-            .andExpect(content().string("Can't send the same letter twice"));
-
-        verify(cache, times(2)).add(any(Letter.class));
-        verify(cache, never()).remove(any(Letter.class));
-        verify(notifyClient, times(1)).send(any(Letter.class));
     }
 
     @Test
@@ -93,8 +70,6 @@ public class SendLetterTest {
 
         send("{\"letter\":\"i don't want to be notified\"}").andExpect(status().isInternalServerError());
 
-        verify(cache, times(1)).add(any(Letter.class));
-        verify(cache, times(1)).remove(any(Letter.class));
         verify(notifyClient, times(1)).send(any(Letter.class));
     }
 

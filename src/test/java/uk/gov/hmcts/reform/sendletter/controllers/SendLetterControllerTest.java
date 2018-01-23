@@ -11,14 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
-import uk.gov.hmcts.reform.sendletter.exceptions.LetterAlreadySentException;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,16 +33,6 @@ public class SendLetterControllerTest {
 
         sendLetter()
             .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void should_return_400_if_letter_was_already_set() throws Exception {
-        doThrow(LetterAlreadySentException.class)
-            .when(letterService)
-            .send(any(Letter.class));
-
-        sendLetter()
-            .andExpect(status().isBadRequest());
     }
 
     @Test
