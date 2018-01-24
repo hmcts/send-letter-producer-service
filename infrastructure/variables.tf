@@ -1,9 +1,9 @@
 variable "product" {
   type    = "string"
-  default = "send-letter-producer-service"
+  default = "send-letter-producer"
 }
 
-variable "location_api" {
+variable "location" {
   type    = "string"
   default = "UK South"
 }
