@@ -14,3 +14,7 @@ idam:
   s2s-auth:
     enabled: ${S2S_ENABLED:true}
     url: ${S2S_URL}
+
+app-insights:
+  ikey: ${APPLICATION_INSIGHTS_IKEY}
+  dev-mode: ${APPLICATION_INSIGHTS_DEV_MODE:true}

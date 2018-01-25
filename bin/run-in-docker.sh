@@ -14,8 +14,9 @@ print_help() {
     --help, -h                    Print this help block
 
   Available parameters:
-    S2S_URL         Defaults to 'localhost'
-    STUB_NOTIFY     Defaults to 'true'
+    APPLICATION_INSIGHTS_IKEY     Defaults to 'app-insight-key'
+    S2S_URL                       Defaults to 'localhost'
+    STUB_NOTIFY                   Defaults to 'true'
   "
 }
 
@@ -24,6 +25,7 @@ GRADLE_CLEAN=false
 GRADLE_INSTALL=false
 
 # environment variables
+APPLICATION_INSIGHTS_IKEY="app-insight-key"
 STUB_NOTIFY=true
 S2S_URL=localhost
 
@@ -44,6 +46,7 @@ execute_script() {
 
   echo "Assigning environment variables.."
 
+  export APPLICATION_INSIGHTS_IKEY=${APPLICATION_INSIGHTS_IKEY}
   export STUB_NOTIFY=${STUB_NOTIFY}
   export S2S_URL=${S2S_URL}
 
@@ -59,6 +62,7 @@ while true ; do
     -i|--install) GRADLE_INSTALL=true ; shift ;;
     -p|--param)
       case "$2" in
+        APPLICATION_INSIGHTS_IKEY=*) APPLICATION_INSIGHTS_IKEY="${2#*=}" ; shift 2 ;;
         STUB_NOTIFY=*) STUB_NOTIFY="${2#*=}" ; shift 2 ;;
         S2S_URL=*) S2S_URL="${2#*=}" ; shift 2 ;;
         *) shift 2 ;;

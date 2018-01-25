@@ -11,6 +11,8 @@ services:
     image: docker.artifactory.reform.hmcts.net/reform/send-letter-producer-service
     container_name: send-letter-producer-service
     environment:
+      - APPLICATION_INSIGHTS_DEV_MODE
+      - APPLICATION_INSIGHTS_IKEY
       - S2S_URL
       - STUB_NOTIFY
       # these environment variables are used by java-logging library

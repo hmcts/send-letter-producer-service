@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.sendletter.FunSuite;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.notify.INotifyClient;
 import uk.gov.hmcts.reform.sendletter.notify.NotifyClientStub;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SendLetterTest {
+public class SendLetterTest extends FunSuite {
 
     @Autowired
     private MockMvc mvc;
@@ -48,17 +49,17 @@ public class SendLetterTest {
     @SpyBean
     private INotifyClient notifyClient;
 
-    @Test
-    public void check_integration_spies() {
-        // just making sure using correct implementation instead of mocks/stubs
-        assertThat(notifyClient.getClass().getSimpleName()).startsWith(NotifyClientStub.class.getSimpleName());
-    }
-
     private static final String LETTER_JSON = "{"
         + "\"template\": \"abc\","
         + "\"values\": { \"a\": \"b\" },"
         + "\"type\": \"typeA\""
         + "}";
+
+    @Test
+    public void check_integration_spies() {
+        // just making sure using correct implementation instead of mocks/stubs
+        assertThat(notifyClient.getClass().getSimpleName()).startsWith(NotifyClientStub.class.getSimpleName());
+    }
 
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
