@@ -7,6 +7,7 @@ plugins {
   id 'org.springframework.boot' version '1.5.9.RELEASE'
   id 'org.owasp.dependencycheck' version '3.1.0'
   id 'com.github.ben-manes.versions' version '0.17.0'
+  id 'org.sonarqube' version '2.6.1'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -52,6 +53,15 @@ jacocoTestReport {
   reports {
     xml.enabled = true
     csv.enabled = false
+  }
+}
+
+project.tasks['sonarqube'].dependsOn test, functionalTest
+sonarqube {
+  properties {
+    property "sonar.projectName", "Reform :: Send Letter Producer"
+    property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+    property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/functionalTest.exec"
   }
 }
 
