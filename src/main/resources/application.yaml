@@ -18,3 +18,7 @@ idam:
 app-insights:
   ikey: ${APPLICATION_INSIGHTS_IKEY}
   dev-mode: ${APPLICATION_INSIGHTS_DEV_MODE:true}
+
+spring:
+  application:
+    name: Send Letter Provider

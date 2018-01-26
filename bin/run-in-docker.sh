@@ -14,8 +14,8 @@ print_help() {
     --help, -h                    Print this help block
 
   Available parameters:
-    APPLICATION_INSIGHTS_IKEY     Defaults to 'app-insight-key'
-    S2S_URL                       Defaults to 'localhost'
+    APPLICATION_INSIGHTS_IKEY     Defaults to '00000000-0000-0000-0000-000000000000'
+    S2S_URL                       Defaults to 'false' - disables health check
     STUB_NOTIFY                   Defaults to 'true'
   "
 }
@@ -25,9 +25,9 @@ GRADLE_CLEAN=false
 GRADLE_INSTALL=false
 
 # environment variables
-APPLICATION_INSIGHTS_IKEY="app-insight-key"
+APPLICATION_INSIGHTS_IKEY="00000000-0000-0000-0000-000000000000"
 STUB_NOTIFY=true
-S2S_URL=localhost
+S2S_URL=false
 
 execute_script() {
   cd $(dirname "$0")/..
