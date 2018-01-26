@@ -96,6 +96,16 @@ repositories {
   }
 }
 
+distributions {
+  main {
+    contents {
+      from(file("$rootDir/lib/AI-Agent.xml")) {
+        into "lib"
+      }
+    }
+  }
+}
+
 def versions = [
   springfoxSwagger: '2.7.0'
 ]

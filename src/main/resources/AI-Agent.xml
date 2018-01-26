@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ApplicationInsightsAgent>
-    <Instrumentation>
-        <BuiltIn enabled="true">
-            <HTTP enabled="false"/>
-        </BuiltIn>
-    </Instrumentation>
-</ApplicationInsightsAgent>

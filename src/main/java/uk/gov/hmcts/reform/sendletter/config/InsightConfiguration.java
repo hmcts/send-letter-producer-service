@@ -11,7 +11,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.Ordered;
 
 @Configuration
 @Import(InterceptorRegistry.class)
@@ -31,7 +30,6 @@ public class InsightConfiguration {
         FilterRegistrationBean bean = new FilterRegistrationBean();
 
         bean.setFilter(new WebRequestTrackingFilter(appName));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
         return bean;
     }
