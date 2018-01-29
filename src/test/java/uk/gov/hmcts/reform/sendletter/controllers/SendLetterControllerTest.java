@@ -10,11 +10,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -59,31 +62,48 @@ public class SendLetterControllerTest {
     }
 
     @Test
-    public void should_return_service_bus_exception_when_service_fails_due_to_service_bus() throws Exception {
+    public void should_return_connection_exception_when_service_fails_due_to_service_bus() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(any(Letter.class), anyString())).willThrow(ServiceBusException.class);
+        given(letterService.send(any(Letter.class), anyString()))
+            .willThrow(
+                new ConnectionException("Unable to connect to Azure service bus",
+                    new ServiceBusException(false))
+            );
 
-        sendLetter(LETTER_JSON)
+        MvcResult mvcResult = sendLetter(LETTER_JSON)
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(
-                containsString("Exception occured while communicating with service bus")));
+            .andReturn();
+
+        assertThat(mvcResult.getResolvedException()).isInstanceOf(ConnectionException.class);
+        assertThat(mvcResult.getResolvedException().getMessage()).isEqualTo("Unable to connect to Azure service bus");
+        assertThat(mvcResult.getResolvedException().getCause()).isInstanceOf(ServiceBusException.class);
 
         verify(tokenValidator).getServiceName("auth-header-value");
-        verifyNoMoreInteractions(tokenValidator);
+        verify(letterService).send(any(Letter.class), anyString());
+        verifyNoMoreInteractions(tokenValidator, letterService);
     }
 
     @Test
-    public void should_return_interrupted_exception_when_service_fails_due_to_thread_interruption() throws Exception {
+    public void should_return_connection_exception_when_service_fails_due_to_thread_interruption() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(any(Letter.class), anyString())).willThrow(InterruptedException.class);
+        given(letterService.send(any(Letter.class), anyString()))
+            .willThrow(
+                new ConnectionException("Unable to connect to Azure service bus",
+                    new InterruptedException())
+            );
 
-        sendLetter(LETTER_JSON)
+        MvcResult mvcResult = sendLetter(LETTER_JSON)
             .andExpect(status().is5xxServerError())
-            .andExpect(content().string(
-                containsString("Exception occurred as the thread was interrupted")));
+            .andReturn();
+
+        assertThat(mvcResult.getResolvedException()).isInstanceOf(ConnectionException.class);
+        assertThat(mvcResult.getResolvedException().getMessage()).isEqualTo("Unable to connect to Azure service bus");
+        assertThat(mvcResult.getResolvedException().getCause()).isInstanceOf(InterruptedException.class);
+
 
         verify(tokenValidator).getServiceName("auth-header-value");
-        verifyNoMoreInteractions(tokenValidator);
+        verify(letterService).send(any(Letter.class), anyString());
+        verifyNoMoreInteractions(tokenValidator, letterService);
     }
 
     @Test

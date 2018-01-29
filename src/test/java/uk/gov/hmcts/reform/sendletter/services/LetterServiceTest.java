@@ -11,9 +11,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.sendletter.SampleData;
+import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,22 +34,26 @@ public class LetterServiceTest {
     private LetterService service;
 
     @Mock
-    private IQueueClient queueClient;
-
-    @Mock
     private ObjectMapper objectMapper;
 
     private CompletableFuture<Void> voidCompletableFuture;
 
+    @Mock
+    private Supplier<IQueueClient> queueClientSupplier;
+
+    @Mock
+    private IQueueClient queueClient;
+
     @Before
     public void setUp() {
-        this.service = new LetterService(() -> queueClient, objectMapper, 7);
+        this.service = new LetterService(queueClientSupplier, objectMapper, 7);
         voidCompletableFuture = CompletableFuture.completedFuture(null);
     }
 
     @Test
     public void should_return_message_id_when_single_letter_is_sent() throws Exception {
         // given
+        given(queueClientSupplier.get()).willReturn(queueClient);
         given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
 
         //when
@@ -55,22 +61,32 @@ public class LetterServiceTest {
 
         //then
         assertThat(messageId).isNotNull();
+
+        verify(queueClientSupplier).get();
+        verify(queueClient).sendAsync(any(Message.class));
+        verifyNoMoreInteractions(queueClientSupplier, queueClient);
     }
 
     @Test
-    public void should_throw_service_bus_exception_when_queue_client_fails_to_connect() throws Exception {
+    public void should_throw_connection_exception_when_queue_client_fails_to_connect() throws Exception {
         // given
-        given(queueClient.sendAsync(any(Message.class))).willThrow(ServiceBusException.class);
+        given(queueClientSupplier.get())
+            .willThrow(
+                new ConnectionException("Unable to connect to Azure service bus",
+                    new ServiceBusException(false))
+            );
 
         // when
         Throwable exception = catchThrowable(() -> service.send(letter, "service"));
 
         // then
         assertThat(exception)
-            .isInstanceOf(ServiceBusException.class);
+            .isInstanceOf(ConnectionException.class)
+            .hasCauseExactlyInstanceOf(ServiceBusException.class)
+            .hasMessage("Unable to connect to Azure service bus");
 
-        verify(queueClient).sendAsync(any(Message.class));
-        verifyNoMoreInteractions(queueClient);
+        verify(queueClientSupplier).get();
+        verifyNoMoreInteractions(queueClientSupplier);
     }
 
     @Test
@@ -87,25 +103,33 @@ public class LetterServiceTest {
     }
 
     @Test
-    public void should_throw_interrupted_exception_when_letter_is_invalid() throws Exception {
+    public void should_throw_connection_exception_when_thread_is_interrupted() throws Exception {
         // given
-        given(queueClient.sendAsync(any(Message.class))).willThrow(InterruptedException.class);
+        given(queueClientSupplier.get())
+            .willThrow(
+                new ConnectionException("Unable to connect to Azure service bus",
+                    new InterruptedException())
+            );
 
         // when
         Throwable exception = catchThrowable(() -> service.send(letter, "service"));
 
         // then
         assertThat(exception)
-            .isInstanceOf(InterruptedException.class);
+            .isInstanceOf(ConnectionException.class)
+            .hasCauseExactlyInstanceOf(InterruptedException.class)
+            .hasMessage("Unable to connect to Azure service bus");
 
-        verify(queueClient).sendAsync(any(Message.class));
-        verifyNoMoreInteractions(queueClient);
+
+        verify(queueClientSupplier).get();
+        verifyNoMoreInteractions(queueClientSupplier);
     }
 
 
     @Test
     public void should_rethrow_runtime_exception_if_invocation_fails() throws Exception {
         // given
+        given(queueClientSupplier.get()).willReturn(queueClient);
         given(queueClient.sendAsync(any(Message.class))).willThrow(RuntimeException.class);
 
         // when
@@ -115,8 +139,9 @@ public class LetterServiceTest {
         assertThat(exception)
             .isInstanceOf(RuntimeException.class);
 
+        verify(queueClientSupplier).get();
         verify(queueClient).sendAsync(any(Message.class));
-        verifyNoMoreInteractions(queueClient);
+        verifyNoMoreInteractions(queueClientSupplier, queueClient);
     }
 
     @Test

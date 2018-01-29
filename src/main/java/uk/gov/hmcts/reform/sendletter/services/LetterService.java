@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
-import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.apache.http.util.Asserts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,7 @@ public class LetterService {
         this.messageTimeToLive = messageTimeToLive;
     }
 
-    public String send(Letter letter, String serviceName)
-        throws ServiceBusException, InterruptedException, JsonProcessingException {
-
+    public String send(Letter letter, String serviceName) throws JsonProcessingException {
         Asserts.notEmpty(serviceName, "serviceName");
 
         IQueueClient sendClient = queueClientSupplier.get();
