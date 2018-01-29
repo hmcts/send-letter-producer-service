@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -41,15 +43,17 @@ public class SendLetterController {
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation(value = "Send letter to print and post service")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Successfully sent letter"),
+        @ApiResponse(code = 200, response = String.class, message = "Successfully sent letter")
     })
-    public ResponseEntity<Void> sendLetter(
+    public ResponseEntity<String> sendLetter(
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
         @Valid @RequestBody Letter letter
-    ) {
-        tokenValidator.getServiceName(serviceAuthHeader);
-        letterService.send(letter);
+    ) throws ServiceBusException, InterruptedException, JsonProcessingException {
 
-        return ok().build();
+        tokenValidator.getServiceName(serviceAuthHeader);
+
+        String messageId = letterService.send(letter);
+
+        return ok().body(messageId);
     }
 }

@@ -14,7 +14,6 @@ services:
       - APPLICATION_INSIGHTS_DEV_MODE
       - APPLICATION_INSIGHTS_IKEY
       - S2S_URL
-      - STUB_NOTIFY
       # these environment variables are used by java-logging library
       - ROOT_APPENDER
       - JSON_CONSOLE_PRETTY_PRINT

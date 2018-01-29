@@ -1,5 +1,10 @@
 package uk.gov.hmcts.reform.sendletter.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.azure.servicebus.IQueueClient;
+import com.microsoft.azure.servicebus.Message;
+import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,53 +12,112 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
-import uk.gov.hmcts.reform.sendletter.notify.INotifyClient;
+
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.verifyNoMoreInteractions;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class LetterServiceTest {
-
-    @Mock private INotifyClient notifyClient;
 
     private final Letter letter = SampleData.letter();
 
     private LetterService service;
 
+    @Mock
+    private IQueueClient queueClient;
+
+    @Mock
+    private ObjectMapper objectMapper;
+
+    private CompletableFuture<Void> voidCompletableFuture;
+
     @Before
     public void setUp() {
-        service = new LetterService(notifyClient);
+        this.service = new LetterService(() -> queueClient, objectMapper, 7);
+        voidCompletableFuture = CompletableFuture.completedFuture(null);
     }
 
     @Test
-    public void should_send_a_request_to_notify_if_letter_was_not_sent_previously() {
-
-        // when
-        service.send(letter);
-
-        // then
-        verify(notifyClient, times(1)).send(letter);
-    }
-
-    @Test
-    public void should_rethrow_notify_exception_if_call_failed() {
-
+    public void should_return_message_id_when_single_letter_is_sent() throws Exception {
         // given
-        doThrow(new RuntimeException("foo!"))
-            .when(notifyClient)
-            .send(any(Letter.class));
+        given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
+
+        //when
+        String messageId = service.send(letter);
+
+        //then
+        assertThat(messageId).isNotNull();
+    }
+
+    @Test
+    public void should_throw_service_bus_exception_when_queue_client_fails_to_connect() throws Exception {
+        // given
+        given(queueClient.sendAsync(any(Message.class))).willThrow(ServiceBusException.class);
 
         // when
-        Throwable exc = catchThrowable(() -> service.send(letter));
+        Throwable exception = catchThrowable(() -> service.send(letter));
 
         // then
-        assertThat(exc)
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("foo!");
+        assertThat(exception)
+            .isInstanceOf(ServiceBusException.class);
+
+        verify(queueClient).sendAsync(any(Message.class));
+        verifyNoMoreInteractions(queueClient);
+    }
+
+    @Test
+    public void should_throw_json_processing_exception_when_letter_is_invalid() throws Exception {
+        // given
+        given(objectMapper.writeValueAsBytes(letter)).willThrow(JsonProcessingException.class);
+
+        // when
+        Throwable exception = catchThrowable(() -> service.send(letter));
+
+        // then
+        assertThat(exception)
+            .isInstanceOf(JsonProcessingException.class);
+
+        verify(objectMapper).writeValueAsBytes(letter);
+        verifyNoMoreInteractions(objectMapper);
+    }
+
+    @Test
+    public void should_throw_interrupted_exception_when_letter_is_invalid() throws Exception {
+        // given
+        given(queueClient.sendAsync(any(Message.class))).willThrow(InterruptedException.class);
+
+        // when
+        Throwable exception = catchThrowable(() -> service.send(letter));
+
+        // then
+        assertThat(exception)
+            .isInstanceOf(InterruptedException.class);
+
+        verify(queueClient).sendAsync(any(Message.class));
+        verifyNoMoreInteractions(queueClient);
+    }
+
+
+    @Test
+    public void should_rethrow_runtime_exception_if_invocation_fails() throws Exception {
+        // given
+        given(queueClient.sendAsync(any(Message.class))).willThrow(RuntimeException.class);
+
+        // when
+        Throwable exception = catchThrowable(() -> service.send(letter));
+
+        // then
+        assertThat(exception)
+            .isInstanceOf(RuntimeException.class);
+
+        verify(queueClient).sendAsync(any(Message.class));
+        verifyNoMoreInteractions(queueClient);
     }
 }

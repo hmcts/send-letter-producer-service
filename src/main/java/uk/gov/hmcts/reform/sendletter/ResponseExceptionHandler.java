@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sendletter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,8 +53,28 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
         return status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    @ExceptionHandler(ServiceBusException.class)
+    protected ResponseEntity handleServiceBusException() {
+        return status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Exception occured while communicating with service bus");
+    }
+
+    @ExceptionHandler(InterruptedException.class)
+    protected ResponseEntity handleInterruptedException() {
+        return status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Exception occurred as the thread was interrupted");
+    }
+
+    @ExceptionHandler(JsonProcessingException.class)
+    protected ResponseEntity handleJsonProcessingException() {
+        return status(HttpStatus.BAD_REQUEST)
+            .body("Exception occured while parsing letter contents");
+    }
+
     @ExceptionHandler(Exception.class)
     protected ResponseEntity handleInternalException() {
         return status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+
+
 }

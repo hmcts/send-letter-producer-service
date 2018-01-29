@@ -16,7 +16,6 @@ print_help() {
   Available parameters:
     APPLICATION_INSIGHTS_IKEY     Defaults to '00000000-0000-0000-0000-000000000000'
     S2S_URL                       Defaults to 'false' - disables health check
-    STUB_NOTIFY                   Defaults to 'true'
   "
 }
 
@@ -26,7 +25,6 @@ GRADLE_INSTALL=false
 
 # environment variables
 APPLICATION_INSIGHTS_IKEY="00000000-0000-0000-0000-000000000000"
-STUB_NOTIFY=true
 S2S_URL=false
 
 execute_script() {
@@ -47,7 +45,6 @@ execute_script() {
   echo "Assigning environment variables.."
 
   export APPLICATION_INSIGHTS_IKEY=${APPLICATION_INSIGHTS_IKEY}
-  export STUB_NOTIFY=${STUB_NOTIFY}
   export S2S_URL=${S2S_URL}
 
   echo "Bringing up docker containers.."
@@ -63,7 +60,6 @@ while true ; do
     -p|--param)
       case "$2" in
         APPLICATION_INSIGHTS_IKEY=*) APPLICATION_INSIGHTS_IKEY="${2#*=}" ; shift 2 ;;
-        STUB_NOTIFY=*) STUB_NOTIFY="${2#*=}" ; shift 2 ;;
         S2S_URL=*) S2S_URL="${2#*=}" ; shift 2 ;;
         *) shift 2 ;;
       esac ;;
