@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,6 +18,8 @@ import uk.gov.hmcts.reform.sendletter.services.LetterService;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -46,21 +47,21 @@ public class SendLetterControllerTest {
     @Test
     public void should_return_message_id_when_letter_is_successfully_sent() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(Mockito.any(Letter.class))).willReturn("12345");
+        given(letterService.send(any(Letter.class), anyString())).willReturn("12345");
 
         sendLetter(LETTER_JSON)
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("12345")));
 
         verify(tokenValidator).getServiceName("auth-header-value");
-        verify(letterService).send(Mockito.any(Letter.class));
+        verify(letterService).send(any(Letter.class), eq("service-name"));
         verifyNoMoreInteractions(tokenValidator, letterService);
     }
 
     @Test
     public void should_return_service_bus_exception_when_service_fails_due_to_service_bus() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(Mockito.any(Letter.class))).willThrow(ServiceBusException.class);
+        given(letterService.send(any(Letter.class), anyString())).willThrow(ServiceBusException.class);
 
         sendLetter(LETTER_JSON)
             .andExpect(status().is5xxServerError())
@@ -74,7 +75,7 @@ public class SendLetterControllerTest {
     @Test
     public void should_return_interrupted_exception_when_service_fails_due_to_thread_interruption() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(Mockito.any(Letter.class))).willThrow(InterruptedException.class);
+        given(letterService.send(any(Letter.class), anyString())).willThrow(InterruptedException.class);
 
         sendLetter(LETTER_JSON)
             .andExpect(status().is5xxServerError())
@@ -88,7 +89,7 @@ public class SendLetterControllerTest {
     @Test
     public void should_return_json_processing_exception_when_service_fails_to_serialize_letter() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(Mockito.any(Letter.class))).willThrow(JsonProcessingException.class);
+        given(letterService.send(any(Letter.class), anyString())).willThrow(JsonProcessingException.class);
 
         sendLetter(LETTER_JSON)
             .andExpect(status().is4xxClientError())
@@ -106,7 +107,7 @@ public class SendLetterControllerTest {
     public void should_return_400_client_error_when_invalid_letter_is_sent() throws Exception {
         sendLetter("").andExpect(status().is4xxClientError());
 
-        verify(letterService, never()).send(any(Letter.class));
+        verify(letterService, never()).send(any(Letter.class), anyString());
     }
 
     private ResultActions sendLetter(String json) throws Exception {

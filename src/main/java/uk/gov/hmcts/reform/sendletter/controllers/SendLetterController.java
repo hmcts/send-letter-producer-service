@@ -50,9 +50,8 @@ public class SendLetterController {
         @Valid @RequestBody Letter letter
     ) throws ServiceBusException, InterruptedException, JsonProcessingException {
 
-        tokenValidator.getServiceName(serviceAuthHeader);
-
-        String messageId = letterService.send(letter);
+        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
+        String messageId = letterService.send(letter, serviceName);
 
         return ok().body(messageId);
     }

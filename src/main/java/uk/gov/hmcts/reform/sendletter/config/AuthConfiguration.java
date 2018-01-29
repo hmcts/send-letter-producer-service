@@ -36,7 +36,7 @@ public class AuthConfiguration {
             }
 
             public String getServiceName(String token) {
-                return null;
+                return "some_service_name";
             }
         };
     }

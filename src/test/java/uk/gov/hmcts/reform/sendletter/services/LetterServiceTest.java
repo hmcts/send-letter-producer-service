@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.sendletter.model.Letter;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
@@ -50,7 +51,7 @@ public class LetterServiceTest {
         given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
 
         //when
-        String messageId = service.send(letter);
+        String messageId = service.send(letter, "service");
 
         //then
         assertThat(messageId).isNotNull();
@@ -62,7 +63,7 @@ public class LetterServiceTest {
         given(queueClient.sendAsync(any(Message.class))).willThrow(ServiceBusException.class);
 
         // when
-        Throwable exception = catchThrowable(() -> service.send(letter));
+        Throwable exception = catchThrowable(() -> service.send(letter, "service"));
 
         // then
         assertThat(exception)
@@ -73,19 +74,16 @@ public class LetterServiceTest {
     }
 
     @Test
-    public void should_throw_json_processing_exception_when_letter_is_invalid() throws Exception {
+    public void should_throw_json_processing_exception_letter_serialization_fails() throws Exception {
         // given
-        given(objectMapper.writeValueAsBytes(letter)).willThrow(JsonProcessingException.class);
+        given(objectMapper.writeValueAsBytes(any())).willThrow(JsonProcessingException.class);
 
         // when
-        Throwable exception = catchThrowable(() -> service.send(letter));
+        Throwable exception = catchThrowable(() -> service.send(letter, "service"));
 
         // then
         assertThat(exception)
             .isInstanceOf(JsonProcessingException.class);
-
-        verify(objectMapper).writeValueAsBytes(letter);
-        verifyNoMoreInteractions(objectMapper);
     }
 
     @Test
@@ -94,7 +92,7 @@ public class LetterServiceTest {
         given(queueClient.sendAsync(any(Message.class))).willThrow(InterruptedException.class);
 
         // when
-        Throwable exception = catchThrowable(() -> service.send(letter));
+        Throwable exception = catchThrowable(() -> service.send(letter, "service"));
 
         // then
         assertThat(exception)
@@ -111,7 +109,7 @@ public class LetterServiceTest {
         given(queueClient.sendAsync(any(Message.class))).willThrow(RuntimeException.class);
 
         // when
-        Throwable exception = catchThrowable(() -> service.send(letter));
+        Throwable exception = catchThrowable(() -> service.send(letter, "service"));
 
         // then
         assertThat(exception)
@@ -119,5 +117,17 @@ public class LetterServiceTest {
 
         verify(queueClient).sendAsync(any(Message.class));
         verifyNoMoreInteractions(queueClient);
+    }
+
+    @Test
+    public void should_not_allow_null_service_name() throws Exception {
+        assertThatThrownBy(() -> service.send(letter, null))
+            .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    public void should_not_allow_empty_service_name() {
+        assertThatThrownBy(() -> service.send(letter, ""))
+            .isInstanceOf(IllegalStateException.class);
     }
 }

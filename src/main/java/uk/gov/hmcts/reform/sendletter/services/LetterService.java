@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.apache.http.util.Asserts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.WithServiceName;
 
 import java.time.Duration;
 import java.util.Random;
@@ -36,7 +38,11 @@ public class LetterService {
         this.messageTimeToLive = messageTimeToLive;
     }
 
-    public String send(Letter letter) throws ServiceBusException, InterruptedException, JsonProcessingException {
+    public String send(Letter letter, String serviceName)
+        throws ServiceBusException, InterruptedException, JsonProcessingException {
+
+        Asserts.notEmpty(serviceName, "serviceName");
+
         IQueueClient sendClient = queueClientSupplier.get();
 
         //TODO: Replace random int generation with checksum code
@@ -45,7 +51,7 @@ public class LetterService {
         log.info("Generated message: id = {} for letter with print queue id = {} ", messageId, letter.type);
 
         sendClient
-            .sendAsync(createQueueMessage(letter, messageId))
+            .sendAsync(createQueueMessage(new WithServiceName<>(letter, serviceName), messageId))
             .thenRunAsync(() -> {
                 log.info("Message acknowledged: id = {}", messageId);
             })
@@ -54,7 +60,9 @@ public class LetterService {
         return messageId;
     }
 
-    private Message createQueueMessage(Letter letter, String messageId) throws JsonProcessingException {
+    private Message createQueueMessage(WithServiceName<Letter> letter, String messageId)
+        throws JsonProcessingException {
+
         Message message = new Message(objectMapper.writeValueAsBytes(letter));
         message.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         message.setMessageId(messageId);
