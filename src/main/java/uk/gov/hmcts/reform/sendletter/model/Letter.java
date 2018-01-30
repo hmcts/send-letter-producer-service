@@ -3,9 +3,12 @@ package uk.gov.hmcts.reform.sendletter.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class Letter {
+public class Letter implements Serializable {
+
+    private static final long serialVersionUID = -7737087336283080072L;
 
     @NotEmpty
     public final String template;

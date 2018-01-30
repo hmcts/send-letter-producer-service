@@ -14,8 +14,9 @@ import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.model.WithServiceName;
 
 import java.time.Duration;
-import java.util.Random;
 import java.util.function.Supplier;
+
+import static uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator.generateChecksum;
 
 @Service
 public class LetterService {
@@ -42,8 +43,7 @@ public class LetterService {
 
         IQueueClient sendClient = queueClientSupplier.get();
 
-        //TODO: Replace random int generation with checksum code
-        final String messageId = Integer.toString(new Random().nextInt(100));
+        final String messageId = generateChecksum(letter);
 
         log.info("Generated message: id = {} for letter with print queue id = {} ", messageId, letter.type);
 

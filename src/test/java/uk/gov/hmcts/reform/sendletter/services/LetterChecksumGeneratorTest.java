@@ -1,22 +1,40 @@
 package uk.gov.hmcts.reform.sendletter.services;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.junit.Rule;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import uk.gov.hmcts.reform.sendletter.SampleData;
+import uk.gov.hmcts.reform.sendletter.model.Letter;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LetterChecksumGeneratorTest {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @Test
+    public void should_return_same_md5_checksum_hex_for_same_letter_objects() {
+        Letter letter1 = new Letter("cmc-template",
+            ImmutableMap.of("key11", "value11", "key21", "value21"),
+            "print-job-1234"
+        );
+
+        Letter letter2 = new Letter("cmc-template",
+            ImmutableMap.of("key11", "value11", "key21", "value21"),
+            "print-job-1234");
+
+        assertThat(LetterChecksumGenerator.generateChecksum(letter1))
+            .isEqualTo(LetterChecksumGenerator.generateChecksum(letter2));
+    }
 
     @Test
-    public void will_throw_not_implemented_exception() {
-        LetterChecksumGenerator generator = new LetterChecksumGenerator();
+    public void should_return_different_md5_checksum_hex_for_different_letter_objects() {
+        Letter letter1 = new Letter("cmc-template",
+            ImmutableMap.of("key11", "value11", "key12", "value12"),
+            "print-job-1234"
+        );
 
-        exception.expect(NotImplementedException.class);
+        Letter letter2 = new Letter("cmc-template",
+            ImmutableMap.of("key21", "key21", "key22", "value22"),
+            "print-job-1234");
 
-        generator.generateChecksum(SampleData.letter());
+        assertThat(LetterChecksumGenerator.generateChecksum(letter1))
+            .isNotEqualTo(LetterChecksumGenerator.generateChecksum(letter2));
     }
 }

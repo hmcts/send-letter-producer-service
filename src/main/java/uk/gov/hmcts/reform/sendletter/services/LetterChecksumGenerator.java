@@ -1,13 +1,16 @@
 package uk.gov.hmcts.reform.sendletter.services;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 
-@Component
-public class LetterChecksumGenerator {
+import static org.springframework.util.SerializationUtils.serialize;
 
-    public String generateChecksum(Letter letter) {
-        throw new NotImplementedException();
+public final class LetterChecksumGenerator {
+
+    private LetterChecksumGenerator() {
+    }
+
+    public static String generateChecksum(Letter letter) {
+        return DigestUtils.md5DigestAsHex(serialize(letter));
     }
 }
