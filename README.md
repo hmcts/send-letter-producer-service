@@ -31,7 +31,7 @@ Create docker image:
   docker-compose build
 ```
 
-Run the distribution (created in `build/install/spring-boot-template` directory)
+Run the distribution (created in `build/install/send-letter-producer-service` directory)
 by executing the following command:
 
 ```bash
@@ -39,7 +39,7 @@ by executing the following command:
 ```
 
 This will start the API container exposing the application's port
-(set to `4550` in this template app).
+(set to `8485` in this app).
 
 In order to test if the application is up, you can call its health endpoint:
 
