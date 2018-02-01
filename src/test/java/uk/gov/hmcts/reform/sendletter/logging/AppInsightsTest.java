@@ -44,23 +44,14 @@ public class AppInsightsTest {
         exception.expect(NullPointerException.class);
         exception.expectMessage("Missing APPLICATION_INSIGHTS_IKEY environment variable");
 
-        new AppInsights(telemetry, true);
+        new AppInsights(telemetry);
     }
 
     @Test
-    public void should_create_app_insights_with_dev_mode_on() {
+    public void should_create_app_insights_with_default_dev_mode_off() {
         context.setInstrumentationKey("some-key");
 
-        new AppInsights(telemetry, true);
-
-        assertThat(TelemetryConfiguration.getActive().getChannel().isDeveloperMode()).isTrue();
-    }
-
-    @Test
-    public void should_create_app_insights_with_dev_mode_off() {
-        context.setInstrumentationKey("some-key");
-
-        new AppInsights(telemetry, false);
+        new AppInsights(telemetry);
 
         assertThat(TelemetryConfiguration.getActive().getChannel().isDeveloperMode()).isFalse();
     }

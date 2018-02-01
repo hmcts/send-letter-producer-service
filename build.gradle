@@ -89,11 +89,11 @@ dependencyCheck {
 def springBootVersion = plugins.getPlugin('org.springframework.boot').class.package.implementationVersion
 
 repositories {
-  jcenter()
-
-  flatDir {
-    dirs 'lib'
+  // until new projects get to jcenter
+  maven {
+    url  "https://dl.bintray.com/hmcts/hmcts-maven"
   }
+  jcenter()
 }
 
 distributions {
@@ -107,7 +107,8 @@ distributions {
 }
 
 def versions = [
-  springfoxSwagger: '2.7.0'
+  springfoxSwagger: '2.7.0',
+  logging: '1.5.0'
 ]
 
 dependencies {
@@ -118,16 +119,15 @@ dependencies {
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
 
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: '1.4.0'
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: '1.4.0'
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: versions.logging
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.logging
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: versions.logging
   compile group: 'uk.gov.hmcts.reform', name: 'http-proxy-spring-boot-autoconfigure', version: '1.1.0'
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '0.4.2'
 
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-hystrix', version: '1.4.0.RELEASE'
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-hystrix-dashboard', version: '1.4.0.RELEASE'
 
-  compile group: 'com.microsoft.azure', name: 'applicationinsights-agent', version: '2.0.0-BETA'
-  compile group: 'com.microsoft.azure', name: 'applicationinsights-web', version: '2.0.0-BETA'
   compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.1.1'
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
