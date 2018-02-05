@@ -16,7 +16,7 @@ print_help() {
   Available parameters:
     APPLICATION_INSIGHTS_IKEY           Defaults to '00000000-0000-0000-0000-000000000000'
     S2S_URL                             Defaults to 'false' - disables health check
-    SERVICE_BUS_CONNECTION_STRING       Defaults to 'sb://letter-queue.servicebus.windows.net'
+    SERVICE_BUS_CONNECTION_STRING       Defaults to 'sb://namespace.servicebus.windows.net'
     SERVICE_BUS_QUEUE_NAME              Defaults to 'send-letter-queue'
     SERVICE_QUEUE_MESSAGE_TTL_IN_DAYS   Default to '7'
   "
@@ -29,7 +29,7 @@ GRADLE_INSTALL=false
 # environment variables
 APPLICATION_INSIGHTS_IKEY="00000000-0000-0000-0000-000000000000"
 S2S_URL=false
-SERVICE_BUS_CONNECTION_STRING="sb://letter-queue.servicebus.windows.net"
+SERVICE_BUS_CONNECTION_STRING="sb://namespace.servicebus.windows.net"
 SERVICE_BUS_QUEUE_NAME="send-letter-queue"
 SERVICE_QUEUE_MESSAGE_TTL_IN_DAYS=7
 
