@@ -18,7 +18,6 @@ before_install:
   - wget -O ./codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
 
 script:
-  - ./gradlew build
   - ./gradlew test
   - ./gradlew functionalTest
 

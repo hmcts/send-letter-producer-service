@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.sendletter.services.LetterService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -109,7 +110,7 @@ public class SendLetterControllerTest {
     @Test
     public void should_return_json_processing_exception_when_service_fails_to_serialize_letter() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(any(Letter.class), anyString())).willThrow(JsonProcessingException.class);
+        willThrow(JsonProcessingException.class).given(letterService).send(any(Letter.class), anyString());
 
         sendLetter(LETTER_JSON)
             .andExpect(status().is4xxClientError())

@@ -18,13 +18,13 @@ import java.util.List;
 public class AuthConfiguration {
 
     @Bean
-    @ConditionalOnProperty(name = "idam.s2s-auth.enabled", havingValue = "true")
+    @ConditionalOnProperty(name = "idam.s2s-auth.url")
     public AuthTokenValidator tokenValidator(ServiceAuthorisationApi s2sApi) {
         return new ServiceAuthTokenValidator(s2sApi);
     }
 
     @Bean
-    @ConditionalOnProperty(name = "idam.s2s-auth.enabled", havingValue = "false")
+    @ConditionalOnProperty(name = "idam.s2s-auth.url", havingValue = "false")
     public AuthTokenValidator tokenValidatorStub() {
         return new AuthTokenValidator() {
             public void validate(String token) {

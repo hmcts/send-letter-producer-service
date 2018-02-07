@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -75,7 +76,7 @@ public class SendLetterTest extends FunSuite {
     @Test
     public void should_return_500_when_sending_message_has_failed() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
-        given(queueClient.sendAsync(any(Message.class))).willThrow(ServiceBusException.class);
+        willThrow(ServiceBusException.class).given(queueClient).sendAsync(any(Message.class));
 
         send(LETTER_JSON).andExpect(status().isInternalServerError());
 

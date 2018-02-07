@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -48,7 +47,7 @@ public class SendLetterController {
     public ResponseEntity<String> sendLetter(
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
         @Valid @RequestBody Letter letter
-    ) throws ServiceBusException, InterruptedException, JsonProcessingException {
+    ) throws JsonProcessingException {
 
         String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
         String messageId = letterService.send(letter, serviceName);

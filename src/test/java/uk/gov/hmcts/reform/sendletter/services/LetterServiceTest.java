@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -140,7 +141,7 @@ public class LetterServiceTest {
     @Test
     public void should_throw_json_processing_exception_letter_serialization_fails() throws Exception {
         // given
-        given(objectMapper.writeValueAsBytes(any())).willThrow(JsonProcessingException.class);
+        willThrow(JsonProcessingException.class).given(objectMapper).writeValueAsBytes(any());
 
         // when
         Throwable exception = catchThrowable(() -> service.send(letter, "service"));
@@ -180,7 +181,7 @@ public class LetterServiceTest {
     public void should_rethrow_runtime_exception_if_invocation_fails() {
         // given
         given(queueClientSupplier.get()).willReturn(queueClient);
-        given(queueClient.sendAsync(any(Message.class))).willThrow(RuntimeException.class);
+        willThrow(RuntimeException.class).given(queueClient).sendAsync(any(Message.class));
 
         // when
         Throwable exception = catchThrowable(() -> service.send(letter, "service"));

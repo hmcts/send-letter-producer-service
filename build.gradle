@@ -27,6 +27,18 @@ sourceSets {
   }
 }
 
+compileJava {
+  options.compilerArgs << "-Xlint:unchecked"
+}
+
+compileTestJava {
+  options.compilerArgs << "-Xlint:unchecked"
+}
+
+compileFunctionalTestJava {
+  options.compilerArgs << "-Xlint:unchecked"
+}
+
 task functionalTest(type: Test) {
   description = "Runs Functional Tests"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
