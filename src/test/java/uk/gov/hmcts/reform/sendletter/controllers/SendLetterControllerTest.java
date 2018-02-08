@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +18,8 @@ import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -42,18 +46,12 @@ public class SendLetterControllerTest {
     @MockBean
     private AuthTokenValidator tokenValidator;
 
-    private static final String LETTER_JSON = "{"
-        + "\"template\": \"abc\","
-        + "\"values\": { \"a\": \"b\" },"
-        + "\"type\": \"typeA\""
-        + "}";
-
     @Test
     public void should_return_message_id_when_letter_is_successfully_sent() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
         given(letterService.send(any(Letter.class), anyString())).willReturn("12345");
 
-        sendLetter(LETTER_JSON)
+        sendLetter(readResource("letter.json"))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("12345")));
 
@@ -71,7 +69,7 @@ public class SendLetterControllerTest {
                     new ServiceBusException(false))
             );
 
-        MvcResult mvcResult = sendLetter(LETTER_JSON)
+        MvcResult mvcResult = sendLetter(readResource("letter.json"))
             .andExpect(status().is5xxServerError())
             .andReturn();
 
@@ -93,7 +91,7 @@ public class SendLetterControllerTest {
                     new InterruptedException())
             );
 
-        MvcResult mvcResult = sendLetter(LETTER_JSON)
+        MvcResult mvcResult = sendLetter(readResource("letter.json"))
             .andExpect(status().is5xxServerError())
             .andReturn();
 
@@ -112,7 +110,7 @@ public class SendLetterControllerTest {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
         willThrow(JsonProcessingException.class).given(letterService).send(any(Letter.class), anyString());
 
-        sendLetter(LETTER_JSON)
+        sendLetter(readResource("letter.json"))
             .andExpect(status().is4xxClientError())
             .andExpect(content().string(
                 containsString("Exception occured while parsing letter contents")));
@@ -123,7 +121,6 @@ public class SendLetterControllerTest {
 
     }
 
-
     @Test
     public void should_return_400_client_error_when_invalid_letter_is_sent() throws Exception {
         sendLetter("").andExpect(status().is4xxClientError());
@@ -131,12 +128,68 @@ public class SendLetterControllerTest {
         verify(letterService, never()).send(any(Letter.class), anyString());
     }
 
+    @Test
+    public void should_return_400_client_error_when_letter_is_sent_without_documents() throws Exception {
+        sendLetter(readResource("letter-without-doc.json"))
+            .andExpect(status().is4xxClientError())
+            .andExpect(content()
+                .json("{\"errors\":[{\"field_name\":\"documents\",\"message\":\"size must be between 1 and 10\"}]}"));
+
+        verify(letterService, never()).send(any(Letter.class), anyString());
+    }
+
+    @Test
+    public void should_return_400_client_error_when_letter_is_sent_without_type() throws Exception {
+        sendLetter(readResource("letter-without-type.json"))
+            .andExpect(status().is4xxClientError())
+            .andExpect(content()
+                .json("{\"errors\":[{\"field_name\":\"type\",\"message\":\"may not be empty\"}]}"));
+
+        verify(letterService, never()).send(any(Letter.class), anyString());
+    }
+
+    @Test
+    public void should_return_400_client_error_when_letter_is_sent_without_template_in_document() throws Exception {
+        sendLetter(readResource("letter-without-template.json"))
+            .andExpect(status().is4xxClientError())
+            .andExpect(content()
+                .json("{\"errors\":[{\"field_name\":\"documents[0].template\",\"message\":\"may not be empty\"}]}"));
+
+        verify(letterService, never()).send(any(Letter.class), anyString());
+    }
+
+    @Test
+    public void should_return_400_client_error_when_letter_is_sent_without_template_values_in_document()
+        throws Exception {
+        sendLetter(readResource("letter-without-template-values.json"))
+            .andExpect(status().is4xxClientError())
+            .andExpect(content()
+                .json("{\"errors\":[{\"field_name\":\"documents[0].values\",\"message\":\"may not be empty\"}]}"));
+
+        verify(letterService, never()).send(any(Letter.class), anyString());
+    }
+
+    @Test
+    public void should_return_400_client_error_when_letter_is_with_more_than_10_documents()
+        throws Exception {
+        sendLetter(readResource("letter-with-multiple-docs.json"))
+            .andExpect(status().is4xxClientError())
+            .andExpect(content()
+                .json("{\"errors\":[{\"field_name\":\"documents\",\"message\":\"size must be between 1 and 10\"}]}"));
+
+        verify(letterService, never()).send(any(Letter.class), anyString());
+    }
+
     private ResultActions sendLetter(String json) throws Exception {
         return mockMvc.perform(
             post("/letters")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .header("ServiceAuthorization", "auth-header-value")
                 .content(json)
         );
+    }
+
+    private String readResource(final String fileName) throws IOException {
+        return Resources.toString(Resources.getResource(fileName), Charsets.UTF_8);
     }
 }

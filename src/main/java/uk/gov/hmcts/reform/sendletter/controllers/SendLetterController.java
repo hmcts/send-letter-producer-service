@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sendletter.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.MediaType;
@@ -46,6 +47,7 @@ public class SendLetterController {
     })
     public ResponseEntity<String> sendLetter(
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
+        @ApiParam(value = "Letter consisting of documents and type", required = true)
         @Valid @RequestBody Letter letter
     ) throws JsonProcessingException {
 

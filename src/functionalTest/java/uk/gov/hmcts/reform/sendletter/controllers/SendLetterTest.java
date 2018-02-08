@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
@@ -20,6 +22,7 @@ import uk.gov.hmcts.reform.sendletter.FunSuite;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
@@ -54,18 +57,12 @@ public class SendLetterTest extends FunSuite {
 
     private final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.completedFuture(null);
 
-    private static final String LETTER_JSON = "{"
-        + "\"template\": \"abc\","
-        + "\"values\": { \"a\": \"b\" },"
-        + "\"type\": \"typeA\""
-        + "}";
-
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
         given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
 
-        send(LETTER_JSON).andExpect(status().isOk());
+        send(readResource("letter.json")).andExpect(status().isOk());
 
         voidCompletableFuture.thenRun(() -> {
             verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), anyString());
@@ -78,7 +75,7 @@ public class SendLetterTest extends FunSuite {
         given(queueClientSupplier.get()).willReturn(queueClient);
         willThrow(ServiceBusException.class).given(queueClient).sendAsync(any(Message.class));
 
-        send(LETTER_JSON).andExpect(status().isInternalServerError());
+        send(readResource("letter.json")).andExpect(status().isInternalServerError());
 
         verify(insights, never()).trackMessageAcknowledgement(any(Duration.class), anyBoolean(), anyString());
         verify(insights).trackMessageReceived(eq("some_service_name"), eq("abc"), anyString());
@@ -99,5 +96,9 @@ public class SendLetterTest extends FunSuite {
                 .content(content);
 
         return mvc.perform(request);
+    }
+
+    private String readResource(final String fileName) throws IOException {
+        return Resources.toString(Resources.getResource(fileName), Charsets.UTF_8);
     }
 }

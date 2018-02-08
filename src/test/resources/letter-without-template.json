@@ -1,0 +1,11 @@
+{
+  "documents": [
+    {
+      "template": "",
+      "values": {
+        "a": "b"
+      }
+    }
+  ],
+  "type": "typeA"
+}

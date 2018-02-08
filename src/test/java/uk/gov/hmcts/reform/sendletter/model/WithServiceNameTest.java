@@ -30,8 +30,8 @@ public class WithServiceNameTest {
 
         // then
         assertThat(json)
-            .hasJsonPathValue("@.template")
-            .hasJsonPathMapValue("@.values")
+            .hasJsonPathArrayValue("@.documents")
+            .hasJsonPathValue("@.type")
             .hasJsonPathValue("@.service");
     }
 }

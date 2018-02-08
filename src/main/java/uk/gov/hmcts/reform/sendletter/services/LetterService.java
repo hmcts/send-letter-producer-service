@@ -86,7 +86,9 @@ public class LetterService {
     private Message createQueueMessage(WithServiceName<Letter> letter, String messageId)
         throws JsonProcessingException {
 
-        insights.trackMessageReceived(letter.service, letter.obj.template, messageId);
+        letter.obj.documents
+            .forEach(document ->
+                insights.trackMessageReceived(letter.service, document.template, messageId));
 
         Message message = new Message(objectMapper.writeValueAsBytes(letter));
 

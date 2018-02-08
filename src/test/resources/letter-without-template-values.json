@@ -1,0 +1,9 @@
+{
+  "documents": [
+    {
+      "template": "abc",
+      "values": {}
+    }
+  ],
+  "type": "typeA"
+}
