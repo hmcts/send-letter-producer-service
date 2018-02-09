@@ -12,17 +12,19 @@ public final class SampleData {
 
     public static Letter letter() {
 
-        Document document = new Document(
+        return new Letter(
+            singletonList(new Document(
+                uuid(),
+                ImmutableMap.of(
+                    "key1", uuid(),
+                    "key2", uuid()
+                )
+            )),
             uuid(),
             ImmutableMap.of(
-                "key1", uuid(),
-                "key2", uuid()
+                "caseId", "12345",
+                "documentType", "counter-claim"
             )
-        );
-
-        return new Letter(
-            singletonList(document),
-            uuid()
         );
     }
 

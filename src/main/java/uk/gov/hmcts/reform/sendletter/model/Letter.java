@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
@@ -22,11 +23,16 @@ public class Letter implements Serializable {
     @NotEmpty
     public final String type;
 
+    @JsonProperty("additional_data")
+    public final Map<String, Object> additionalData;
+
     public Letter(
         @JsonProperty("documents") List<Document> documents,
-        @JsonProperty("type") String type
+        @JsonProperty("type") String type,
+        @JsonProperty("additional_data") Map<String, Object> additionalData
     ) {
         this.documents = documents;
         this.type = type;
+        this.additionalData = additionalData;
     }
 }

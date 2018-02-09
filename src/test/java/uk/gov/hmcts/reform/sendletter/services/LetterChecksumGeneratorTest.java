@@ -21,7 +21,11 @@ public class LetterChecksumGeneratorTest {
                     "key21", "value21"
                 )
             )),
-            "print-job-1234"
+            "print-job-1234",
+            ImmutableMap.of(
+                "doc_type", "my doc type",
+                "caseId", "123"
+            )
         );
 
         Letter letter2 = new Letter(
@@ -32,7 +36,11 @@ public class LetterChecksumGeneratorTest {
                     "key21", "value21"
                 )
             )),
-            "print-job-1234"
+            "print-job-1234",
+            ImmutableMap.of(
+                "doc_type", "my doc type",
+                "caseId", "123"
+            )
         );
 
         assertThat(LetterChecksumGenerator.generateChecksum(letter1))
@@ -49,7 +57,11 @@ public class LetterChecksumGeneratorTest {
                     "key11", "value11",
                     "key12", "value12")
             )),
-            "print-job-1234"
+            "print-job-1234",
+            ImmutableMap.of(
+                "doc_type", "my doc type",
+                "caseId", "123"
+            )
         );
 
         Letter letter2 = new Letter(
@@ -59,7 +71,11 @@ public class LetterChecksumGeneratorTest {
                     "key21", "key21",
                     "key22", "value22")
             )),
-            "print-job-1234"
+            "print-job-1234",
+            ImmutableMap.of(
+                "doc_type", "my doc type",
+                "caseId", "123"
+            )
         );
 
         assertThat(LetterChecksumGenerator.generateChecksum(letter1))

@@ -67,6 +67,8 @@ public class LetterService {
             throw new SendMessageException("Could not send message to ServiceBus with " + messageId);
         }
 
+        // TODO: save data about letter being sent to queue.
+
         return messageId;
     }
 
