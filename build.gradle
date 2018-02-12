@@ -4,10 +4,17 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.4.RELEASE'
+  id 'org.flywaydb.flyway' version '5.0.7'
   id 'org.springframework.boot' version '1.5.9.RELEASE'
   id 'org.owasp.dependencycheck' version '3.1.0'
   id 'com.github.ben-manes.versions' version '0.17.0'
   id 'org.sonarqube' version '2.6.1'
+}
+
+flyway {
+  url = System.getenv('FLYWAY_URL')
+  user = System.getenv('FLYWAY_USER')
+  password = System.getenv('FLYWAY_PASSWORD')
 }
 
 group = 'uk.gov.hmcts.reform'

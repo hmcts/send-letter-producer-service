@@ -83,6 +83,14 @@ docker image rm <image-id>
 
 There is no need to remove postgres and java or similar core images.
 
+## Migration
+
+To run migration gradle task expects `FLYWAY_URL` to be present. In case db requires username/password: `FLYWAY_USER` and `FLYWAY_PASSWORD`. Once those variables are exported all flyway tasks are available.
+
+```bash
+./gradlew flywayMigrate
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
