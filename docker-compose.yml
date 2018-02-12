@@ -13,7 +13,6 @@ services:
     environment:
       - APPLICATION_INSIGHTS_IKEY
       - SERVICE_BUS_CONNECTION_STRING
-      - SERVICE_BUS_QUEUE_NAME
       - SERVICE_QUEUE_MESSAGE_TTL_IN_DAYS
       - S2S_URL
       # these environment variables are used by java-logging library

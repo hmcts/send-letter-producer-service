@@ -16,19 +16,15 @@ public class QueueClientSupplier implements Supplier<IQueueClient> {
 
     private final String connectionString;
 
-    private final String queueName;
-
-    public QueueClientSupplier(@Value("${servicebus.connectionString}") String connectionString,
-                               @Value("${servicebus.queue.name}") String queueName) {
+    public QueueClientSupplier(@Value("${servicebus.connectionString}") String connectionString) {
         this.connectionString = connectionString;
-        this.queueName = queueName;
     }
 
     @Override
     public IQueueClient get() {
         try {
             return new QueueClient(
-                new ConnectionStringBuilder(connectionString, queueName),
+                new ConnectionStringBuilder(connectionString),
                 ReceiveMode.PEEKLOCK
             );
         } catch (InterruptedException | ServiceBusException exception) {

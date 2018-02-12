@@ -18,5 +18,4 @@ spring:
 servicebus:
   connectionString: ${SERVICE_BUS_CONNECTION_STRING}
   queue:
-    name: ${SERVICE_BUS_QUEUE_NAME}
     messageTTLInDays: ${SERVICE_QUEUE_MESSAGE_TTL_IN_DAYS:7}

@@ -10,6 +10,5 @@ module "send-letter-producer-service" {
   app_settings = {
     S2S_URL                       = "http://betadevbccidams2slb.reform.hmcts.net:80"
     SERVICE_BUS_CONNECTION_STRING = "TODO"
-    SERVICE_BUS_QUEUE_NAME        = "TODO"
   }
 }
