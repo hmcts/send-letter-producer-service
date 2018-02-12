@@ -11,9 +11,6 @@ idam:
   s2s-auth:
     url: ${S2S_URL}
 
-app-insights:
-  ikey: ${APPLICATION_INSIGHTS_IKEY}
-
 spring:
   application:
     name: Send Letter Provider
