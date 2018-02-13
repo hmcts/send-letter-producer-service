@@ -16,6 +16,6 @@ spring:
     name: Send Letter Provider
 
 servicebus:
-  connectionString: ${SERVICE_BUS_CONNECTION_STRING}
   queue:
+    connectionString: ${SERVICE_BUS_CONNECTION_STRING}
     messageTTLInDays: ${SERVICE_QUEUE_MESSAGE_TTL_IN_DAYS:7}

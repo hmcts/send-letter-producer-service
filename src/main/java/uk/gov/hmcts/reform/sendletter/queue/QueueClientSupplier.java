@@ -16,7 +16,7 @@ public class QueueClientSupplier implements Supplier<IQueueClient> {
 
     private final String connectionString;
 
-    public QueueClientSupplier(@Value("${servicebus.connectionString}") String connectionString) {
+    public QueueClientSupplier(@Value("${servicebus.queue.connectionString}") String connectionString) {
         this.connectionString = connectionString;
     }
 
