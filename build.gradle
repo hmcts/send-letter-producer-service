@@ -136,6 +136,7 @@ dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBootVersion
 
   compile group: 'org.flywaydb', name: 'flyway-core', version: flyway.class.package.implementationVersion
+  compile group: 'org.postgresql', name: 'postgresql', version: '42.2.1'
 
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
