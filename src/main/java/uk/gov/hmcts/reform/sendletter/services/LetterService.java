@@ -10,13 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
-import uk.gov.hmcts.reform.sendletter.model.WithServiceName;
+import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -35,16 +38,21 @@ public class LetterService {
 
     private final int messageTimeToLive;
 
+    private final LetterRepository letterRepository;
+
     public LetterService(Supplier<IQueueClient> queueClientSupplier,
                          AppInsights insights,
                          ObjectMapper objectMapper,
-                         @Value("${servicebus.queue.messageTTLInDays}") int messageTimeToLive) {
+                         @Value("${servicebus.queue.messageTTLInDays}") int messageTimeToLive,
+                         LetterRepository letterRepository) {
         this.queueClientSupplier = queueClientSupplier;
         this.insights = insights;
         this.objectMapper = objectMapper;
         this.messageTimeToLive = messageTimeToLive;
+        this.letterRepository = letterRepository;
     }
 
+    @Transactional
     public String send(Letter letter, String serviceName) throws JsonProcessingException {
         Asserts.notEmpty(serviceName, "serviceName");
 
@@ -52,10 +60,21 @@ public class LetterService {
 
         final String messageId = generateChecksum(letter);
 
-        log.info("Generated message: id = {} for letter with print queue id = {} ", messageId, letter.type);
+        final UUID id = UUID.randomUUID();
 
-        Message message = createQueueMessage(new WithServiceName<>(letter, serviceName), messageId);
+        log.info("Generated message: id = {} for letter with print queue id = {} and letter id = {} ",
+            messageId,
+            letter.type,
+            id);
+
+        WithServiceNameAndId<Letter> letterWithServiceNameAndId = new WithServiceNameAndId<>(letter, serviceName, id);
+
+        Message message = createQueueMessage(letterWithServiceNameAndId, messageId);
+
         Instant startSending = Instant.now();
+
+        //Save message details to db for reporting
+        letterRepository.save(letterWithServiceNameAndId, startSending, messageId);
 
         CompletableFuture<Void> sendResult = sendClient.sendAsync(message);
 
@@ -66,8 +85,6 @@ public class LetterService {
         if (sendResult.isCompletedExceptionally()) {
             throw new SendMessageException("Could not send message to ServiceBus with " + messageId);
         }
-
-        // TODO: save data about letter being sent to queue.
 
         return messageId;
     }
@@ -85,7 +102,7 @@ public class LetterService {
         }
     }
 
-    private Message createQueueMessage(WithServiceName<Letter> letter, String messageId)
+    private Message createQueueMessage(WithServiceNameAndId<Letter> letter, String messageId)
         throws JsonProcessingException {
 
         letter.obj.documents

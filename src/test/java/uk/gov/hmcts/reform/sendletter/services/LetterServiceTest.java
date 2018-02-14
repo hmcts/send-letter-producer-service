@@ -10,13 +10,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.dao.CleanupFailureDataAccessException;
 import uk.gov.hmcts.reform.sendletter.SampleData;
+import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -29,6 +33,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -56,20 +61,26 @@ public class LetterServiceTest {
     @Mock
     private IQueueClient queueClient;
 
+    @Mock
+    private LetterRepository letterRepository;
+
     @Before
     public void setUp() {
-        service = new LetterService(queueClientSupplier, insights, objectMapper, 7);
+        service = new LetterService(queueClientSupplier, insights, objectMapper, 7, letterRepository);
         voidCompletableFuture = CompletableFuture.completedFuture(null);
         failedCompletableFuture = new CompletableFuture<>();
         failedCompletableFuture.completeExceptionally(new Exception("some exception"));
     }
 
     @Test
-    public void should_return_message_id_when_single_letter_is_sent() throws Exception {
+    public void should_save_report_and_return_message_id_when_single_letter_is_sent() throws Exception {
         // given
         given(queueClientSupplier.get()).willReturn(queueClient);
         given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
         given(queueClient.closeAsync()).willReturn(voidCompletableFuture);
+        doNothing()
+            .when(letterRepository)
+            .save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
 
         //when
         String messageId = service.send(letter, "service");
@@ -79,13 +90,32 @@ public class LetterServiceTest {
 
         verify(queueClientSupplier).get();
         verify(queueClient).sendAsync(any(Message.class));
+        verify(letterRepository).save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
 
         voidCompletableFuture.thenRun(() -> {
             verify(queueClient).closeAsync();
             verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), eq(messageId));
             verify(insights).trackMessageReceived("service", letter.documents.get(0).template, messageId);
-            verifyNoMoreInteractions(queueClientSupplier, queueClient, insights);
+            verifyNoMoreInteractions(queueClientSupplier, queueClient, insights, letterRepository);
         });
+    }
+
+    @Test
+    public void should_not_save_report_and_send_message_when_saving_report_fails() throws Exception {
+        // given
+        given(queueClientSupplier.get()).willReturn(queueClient);
+        willThrow(CleanupFailureDataAccessException.class).given(letterRepository)
+            .save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+
+        //when
+        Throwable exception = catchThrowable(() -> service.send(letter, "service"));
+
+        //then
+        assertThat(exception).isInstanceOf(CleanupFailureDataAccessException.class);
+
+        verify(queueClientSupplier).get();
+        verify(letterRepository).save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+        verifyNoMoreInteractions(queueClientSupplier, letterRepository);
     }
 
     @Test

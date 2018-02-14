@@ -14,6 +14,24 @@ idam:
 spring:
   application:
     name: Send Letter Provider
+  datasource:
+      url: jdbc:postgresql://${LETTER_TRACKING_DB_HOST:localhost}:${LETTER_TRACKING_DB_PORT:5432}/${LETTER_TRACKING_DB_NAME:letter-tracking}
+      username: ${LETTER_TRACKING_DB_USER_NAME:postgres}
+      password: ${LETTER_TRACKING_DB_PASSWORD:postgres}
+      properties:
+        charSet: UTF-8
+      maxWaitForConnection: 1
+      minSize: 8
+      maxSize: 32
+      evictionInterval: 10
+      minIdleTime: 1 minute
+      checkConnectionWhileIdle: true
+      checkConnectionOnReturn: true
+      removeAbandoned: true
+      removeAbandonedTimeout: 60
+      abandonWhenPercentageFull: 0
+      testOnBorrow: true
+      validationQuery: SELECT 1
 
 servicebus:
   queue:
