@@ -15,9 +15,9 @@ spring:
   application:
     name: Send Letter Provider
   datasource:
-      url: jdbc:postgresql://${LETTER_TRACKING_DB_HOST:localhost}:${LETTER_TRACKING_DB_PORT:5432}/${LETTER_TRACKING_DB_NAME:letter-tracking}
-      username: ${LETTER_TRACKING_DB_USER_NAME:postgres}
-      password: ${LETTER_TRACKING_DB_PASSWORD:postgres}
+      url: jdbc:postgresql://${LETTER_TRACKING_DB_HOST:send-letter-producer-database}:${LETTER_TRACKING_DB_PORT:5432}/${LETTER_TRACKING_DB_NAME:letter_tracking}
+      username: letterproducer
+      password: ${LETTER_TRACKING_DB_PASSWORD:}
       properties:
         charSet: UTF-8
       maxWaitForConnection: 1

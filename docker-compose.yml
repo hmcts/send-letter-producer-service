@@ -12,6 +12,7 @@ services:
     container_name: send-letter-producer-service
     environment:
       - APPLICATION_INSIGHTS_IKEY
+      - LETTER_TRACKING_DB_PASSWORD
       - SERVICE_BUS_CONNECTION_STRING
       - SERVICE_QUEUE_MESSAGE_TTL_IN_DAYS
       - S2S_URL
@@ -24,3 +25,20 @@ services:
       - REFORM_ENVIRONMENT
     ports:
       - $SERVER_PORT:$SERVER_PORT
+    depends_on:
+      send-letter-producer-database:
+        condition: service_healthy
+  send-letter-producer-database:
+    build:
+      context: docker/database
+    image: docker.artifactory.reform.hmcts.net/reform/send-letter-producer-database
+    container_name: send-letter-producer-database
+    environment:
+      - LETTER_TRACKING_DB_PASSWORD
+    ports:
+      - 5429:5432
+    volumes:
+      - send-letter-producer-database-data:/var/lib/postgresql/data
+
+volumes:
+  send-letter-producer-database-data:
