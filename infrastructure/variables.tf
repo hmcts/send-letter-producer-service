@@ -3,9 +3,14 @@ variable "product" {
   default = "send-letter"
 }
 
-variable "location" {
+variable "location_app" {
   type    = "string"
   default = "UK South"
+}
+
+variable "location_db" {
+  type    = "string"
+  default = "West Europe"
 }
 
 variable "env" {
