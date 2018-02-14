@@ -139,7 +139,7 @@ dependencies {
   compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jackson
   compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jackson
 
-  compile group: 'org.flywaydb', name: 'flyway-core', version: flyway.class.package.implementationVersion
+  compile group: 'org.flywaydb', name: 'flyway-core', version: '5.0.7'
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.1'
 
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
