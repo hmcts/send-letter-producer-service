@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -83,10 +84,10 @@ public class LetterServiceTest {
             .save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
 
         //when
-        String messageId = service.send(letter, "service");
-
+        UUID letterUuid = service.send(letter, "service");
+        String letterId = letterUuid.toString();
         //then
-        assertThat(messageId).isNotNull();
+        assertThat(letterId).isNotNull();
 
         verify(queueClientSupplier).get();
         verify(queueClient).sendAsync(any(Message.class));
@@ -94,8 +95,8 @@ public class LetterServiceTest {
 
         voidCompletableFuture.thenRun(() -> {
             verify(queueClient).closeAsync();
-            verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), eq(messageId));
-            verify(insights).trackMessageReceived("service", letter.documents.get(0).template, messageId);
+            verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), eq(letterId));
+            verify(insights).trackMessageReceived("service", letter.documents.get(0).template, letterId);
             verifyNoMoreInteractions(queueClientSupplier, queueClient, insights, letterRepository);
         });
     }

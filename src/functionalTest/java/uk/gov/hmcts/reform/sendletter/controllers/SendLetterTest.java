@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
@@ -74,7 +76,11 @@ public class SendLetterTest extends FunSuite {
             .when(letterRepository)
             .save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
 
-        send(readResource("letter.json")).andExpect(status().isOk());
+        MvcResult result = send(readResource("letter.json"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        assertThat(result.getResponse().getContentAsString()).isNotNull();
 
         verify(letterRepository).save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
 

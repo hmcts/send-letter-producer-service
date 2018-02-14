@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -48,12 +49,14 @@ public class SendLetterControllerTest {
 
     @Test
     public void should_return_message_id_when_letter_is_successfully_sent() throws Exception {
+        UUID letterId = UUID.randomUUID();
+
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
-        given(letterService.send(any(Letter.class), anyString())).willReturn("12345");
+        given(letterService.send(any(Letter.class), anyString())).willReturn(letterId);
 
         sendLetter(readResource("letter.json"))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString("12345")));
+            .andExpect(content().string(containsString(letterId.toString())));
 
         verify(tokenValidator).getServiceName("auth-header-value");
         verify(letterService).send(any(Letter.class), eq("service-name"));

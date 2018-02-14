@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
+import java.util.UUID;
 import javax.validation.Valid;
 
 import static org.springframework.http.ResponseEntity.noContent;
@@ -47,18 +48,18 @@ public class SendLetterController {
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation(value = "Send letter to print and post service")
     @ApiResponses({
-        @ApiResponse(code = 200, response = String.class, message = "Successfully sent letter")
+        @ApiResponse(code = 200, response = UUID.class, message = "Successfully sent letter")
     })
-    public ResponseEntity<String> sendLetter(
+    public ResponseEntity<UUID> sendLetter(
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
         @ApiParam(value = "Letter consisting of documents and type", required = true)
         @Valid @RequestBody Letter letter
     ) throws JsonProcessingException {
 
         String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
-        String messageId = letterService.send(letter, serviceName);
+        UUID letterId = letterService.send(letter, serviceName);
 
-        return ok().body(messageId);
+        return ok().body(letterId);
     }
 
     @PutMapping(path = "/{id}/sent-to-print-at")

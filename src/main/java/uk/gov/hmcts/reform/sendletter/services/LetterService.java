@@ -54,7 +54,7 @@ public class LetterService {
     }
 
     @Transactional
-    public String send(Letter letter, String serviceName) throws JsonProcessingException {
+    public UUID send(Letter letter, String serviceName) throws JsonProcessingException {
         Asserts.notEmpty(serviceName, "serviceName");
 
         IQueueClient sendClient = queueClientSupplier.get();
@@ -87,7 +87,7 @@ public class LetterService {
             throw new SendMessageException("Could not send message to ServiceBus with " + messageId);
         }
 
-        return messageId;
+        return id;
     }
 
     @Transactional
