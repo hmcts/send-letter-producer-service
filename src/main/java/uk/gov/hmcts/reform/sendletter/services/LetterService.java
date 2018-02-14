@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Duration;
@@ -87,6 +88,11 @@ public class LetterService {
         }
 
         return messageId;
+    }
+
+    @Transactional
+    public void updateSentToPrintAt(String id, LetterSentToPrintAtPatch patch) {
+        // TODO: patch letter `sent_to_print_at` column
     }
 
     private void logMessageSendCompletion(Instant started, String messageId, Throwable exception) {

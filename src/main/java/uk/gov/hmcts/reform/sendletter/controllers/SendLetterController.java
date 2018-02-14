@@ -8,17 +8,21 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import javax.validation.Valid;
 
+import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
@@ -55,5 +59,18 @@ public class SendLetterController {
         String messageId = letterService.send(letter, serviceName);
 
         return ok().body(messageId);
+    }
+
+    @PutMapping(path = "/{id}/sent-to-print-at")
+    @ApiOperation(value = "Update when letter was sent to print")
+    public ResponseEntity<Void> updateSentToPrint(
+        @PathVariable("id") String id,
+        @RequestBody LetterSentToPrintAtPatch patch,
+        @RequestHeader("ServiceAuthorization") String serviceAuthHeader
+    ) {
+        tokenValidator.getServiceName(serviceAuthHeader); //TODO: check that this service is allowed to do it
+        letterService.updateSentToPrintAt(id, patch);
+
+        return noContent().build();
     }
 }

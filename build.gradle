@@ -127,13 +127,17 @@ distributions {
 
 def versions = [
   springfoxSwagger: '2.7.0',
-  logging: '1.5.0'
+  logging: '1.5.0',
+  jackson: dependencyManagement.importedProperties['jackson.version'],
 ]
 
 dependencies {
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBootVersion
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBootVersion
+
+  compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: versions.jackson
+  compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jackson
 
   compile group: 'org.flywaydb', name: 'flyway-core', version: flyway.class.package.implementationVersion
   compile group: 'org.postgresql', name: 'postgresql', version: '42.2.1'
