@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.CleanupFailureDataAccessException;
 import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
+import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
@@ -71,6 +72,16 @@ public class LetterServiceTest {
         voidCompletableFuture = CompletableFuture.completedFuture(null);
         failedCompletableFuture = new CompletableFuture<>();
         failedCompletableFuture.completeExceptionally(new Exception("some exception"));
+    }
+
+    @Test
+    public void should_return_letter_status_when_it_is_found_in_database() {
+        UUID letterId = UUID.randomUUID();
+        LetterStatus status = service.getStatus(letterId, "service-name");
+
+        assertThat(status)
+            .extracting("id")
+            .containsExactly(letterId);
     }
 
     @Test

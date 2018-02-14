@@ -13,6 +13,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
+import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.model.errors.FieldError;
 import uk.gov.hmcts.reform.sendletter.model.errors.ModelValidationError;
 
@@ -49,24 +50,29 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    protected ResponseEntity handleInvalidTokenException() {
+    protected ResponseEntity<Void> handleInvalidTokenException() {
         return status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    @ExceptionHandler(LetterNotFoundException.class)
+    protected ResponseEntity<Void> handleLetterNotFoundException() {
+        return status(HttpStatus.NOT_FOUND).build();
+    }
+
     @ExceptionHandler(ConnectionException.class)
-    protected ResponseEntity handleServiceBusException() {
+    protected ResponseEntity<String> handleServiceBusException() {
         return status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Exception occured while communicating with service bus");
     }
 
     @ExceptionHandler(JsonProcessingException.class)
-    protected ResponseEntity handleJsonProcessingException() {
+    protected ResponseEntity<String> handleJsonProcessingException() {
         return status(HttpStatus.BAD_REQUEST)
             .body("Exception occured while parsing letter contents");
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity handleInternalException() {
+    protected ResponseEntity<Void> handleInternalException() {
         return status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 

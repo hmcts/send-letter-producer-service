@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
+import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
+import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
@@ -51,6 +53,12 @@ public class LetterService {
         this.objectMapper = objectMapper;
         this.messageTimeToLive = messageTimeToLive;
         this.letterRepository = letterRepository;
+    }
+
+    public LetterStatus getStatus(UUID id, String serviceName) throws LetterNotFoundException {
+        // TODO implement dao call
+
+        return new LetterStatus(id);
     }
 
     @Transactional
