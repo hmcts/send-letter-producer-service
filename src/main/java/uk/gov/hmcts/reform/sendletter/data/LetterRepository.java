@@ -11,7 +11,9 @@ import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.sql.Timestamp.from;
 import static java.util.Objects.nonNull;
@@ -45,6 +47,20 @@ public class LetterRepository {
                 .addValue("printedAt", null)
         );
         log.info("Successfully saved letter data into database with id : {} and messageId :{}", letterWithServiceNameAndId.id, messageId);
+    }
+
+    /**
+     * Updates the `sent_to_print_at` column on letter(s) with given id.
+     *
+     * @return number of updated rows.
+     */
+    public int updateSentToPrintAt(UUID id, LocalDateTime dateTime) {
+        return jdbcTemplate.update(
+            "UPDATE letters SET sent_to_print_at = :sentToPrintAt WHERE id = :id",
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("sentToPrintAt", dateTime)
+        );
     }
 
     private String convertToJson(Map<String, Object> additionalData) throws JsonProcessingException {

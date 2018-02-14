@@ -15,13 +15,16 @@ import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
 import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
+import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -249,5 +252,32 @@ public class LetterServiceTest {
     public void should_not_allow_empty_service_name() {
         assertThatThrownBy(() -> service.send(letter, ""))
             .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    public void update_should_throw_an_exception_if_no_letters_were_updated() {
+        given(letterRepository.updateSentToPrintAt(any(), any())).willReturn(0);
+
+        Throwable exc = catchThrowable(() -> {
+            service.updateSentToPrintAt(
+                UUID.randomUUID(),
+                new LetterSentToPrintAtPatch(LocalDateTime.now())
+            );
+        });
+
+        assertThat(exc).isInstanceOf(LetterNotFoundException.class);
+    }
+
+    @Test
+    public void update_should_pass_correct_data_to_update_database() {
+        given(letterRepository.updateSentToPrintAt(any(), any())).willReturn(1);
+        UUID id = UUID.randomUUID();
+        LocalDateTime sentToPrintAt = LocalDateTime.now();
+
+        // when
+        service.updateSentToPrintAt(id, new LetterSentToPrintAtPatch(sentToPrintAt));
+
+        // then
+        verify(letterRepository).updateSentToPrintAt(id, sentToPrintAt);
     }
 }

@@ -91,7 +91,7 @@ public class SendLetterController {
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader
     ) {
         tokenValidator.getServiceName(serviceAuthHeader); //TODO: check that this service is allowed to do it
-        letterService.updateSentToPrintAt(id, patch);
+        letterService.updateSentToPrintAt(getLetterIdFromString(id), patch);
 
         return noContent().build();
     }

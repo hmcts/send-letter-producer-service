@@ -11,6 +11,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
+import java.util.UUID;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -31,7 +33,7 @@ public class UpdateSentToPrintTest {
         given(tokenValidator.getServiceName(anyString())).willReturn("some-service-name");
 
         mockMvc.perform(
-            put("/letters/1234/sent-to-print-at")
+            put("/letters/" + UUID.randomUUID().toString() + "/sent-to-print-at")
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .header("ServiceAuthorization", "auth-header-value")
                 .content("{\"sent_to_print_at\": \"2018-02-14T09:32:15Z\"}")
@@ -44,7 +46,7 @@ public class UpdateSentToPrintTest {
         final String serviceToken = "my_service_token";
 
         mockMvc.perform(
-            put("/letters/123/sent-to-print-at")
+            put("/letters/" + UUID.randomUUID().toString() + "/sent-to-print-at")
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .header("ServiceAuthorization", serviceToken)
                 .content("{\"sent_to_print_at\": \"2018-02-14T09:32:15Z\"}")

@@ -99,8 +99,11 @@ public class LetterService {
     }
 
     @Transactional
-    public void updateSentToPrintAt(String id, LetterSentToPrintAtPatch patch) {
-        // TODO: patch letter `sent_to_print_at` column
+    public void updateSentToPrintAt(UUID id, LetterSentToPrintAtPatch patch) {
+        int numberOfUpdatedRows = letterRepository.updateSentToPrintAt(id, patch.sentToPrintAt);
+        if (numberOfUpdatedRows == 0) {
+            throw new LetterNotFoundException(id);
+        }
     }
 
     private void logMessageSendCompletion(Instant started, String messageId, Throwable exception) {
