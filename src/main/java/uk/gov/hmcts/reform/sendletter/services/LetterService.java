@@ -131,10 +131,6 @@ public class LetterService {
     private Message createQueueMessage(DbLetter letter, String messageId)
         throws JsonProcessingException {
 
-        letter.documents
-            .forEach(document ->
-                insights.trackMessageReceived(letter.service, document.template, messageId));
-
         Message message = new Message(objectMapper.writeValueAsBytes(letter));
 
         message.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);

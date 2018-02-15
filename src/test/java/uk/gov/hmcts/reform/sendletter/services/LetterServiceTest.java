@@ -111,7 +111,6 @@ public class LetterServiceTest {
         voidCompletableFuture.thenRun(() -> {
             verify(queueClient).closeAsync();
             verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), eq(letterId));
-            verify(insights).trackMessageReceived("service", letter.documents.get(0).template, letterId);
             verifyNoMoreInteractions(queueClientSupplier, queueClient, insights, letterRepository);
         });
     }
@@ -154,7 +153,6 @@ public class LetterServiceTest {
 
         failedCompletableFuture.thenRun(() -> {
             verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(false), anyString());
-            verify(insights).trackMessageReceived("service", letter.documents.get(0).template, anyString());
         });
         voidCompletableFuture.thenRun(() -> {
             verify(queueClient).closeAsync();
@@ -195,7 +193,6 @@ public class LetterServiceTest {
         // then
         assertThat(exception).isInstanceOf(JsonProcessingException.class);
         verify(insights, never()).trackMessageAcknowledgement(any(Duration.class), anyBoolean(), anyString());
-        verify(insights).trackMessageReceived(eq("service"), eq(letter.documents.get(0).template), anyString());
         verifyNoMoreInteractions(insights);
     }
 
@@ -239,7 +236,6 @@ public class LetterServiceTest {
         verify(queueClientSupplier).get();
         verify(queueClient).sendAsync(any(Message.class));
         verify(insights, never()).trackMessageAcknowledgement(any(Duration.class), anyBoolean(), anyString());
-        verify(insights).trackMessageReceived(eq("service"), eq(letter.documents.get(0).template), anyString());
         verifyNoMoreInteractions(queueClientSupplier, queueClient, insights);
     }
 

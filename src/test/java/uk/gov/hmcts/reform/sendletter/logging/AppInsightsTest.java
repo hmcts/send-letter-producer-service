@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.sendletter.logging;
 
-import com.google.common.collect.ImmutableMap;
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.TelemetryConfiguration;
 import com.microsoft.applicationinsights.telemetry.Duration;
@@ -15,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -120,26 +118,5 @@ public class AppInsightsTest {
         insights.trackException(new NullPointerException("Some null"));
 
         verify(telemetry).trackException(any(NullPointerException.class));
-    }
-
-    @Test
-    public void should_track_message_received_event() {
-        context.setInstrumentationKey(IKEY);
-
-        AppInsights insights = new AppInsights(telemetry);
-
-        insights.trackMessageReceived(SERVICE_NAME, TEMPLATE, MESSAGE_ID);
-
-        Map<String, String> properties = ImmutableMap.of(
-            "service", SERVICE_NAME,
-            "template", TEMPLATE,
-            "messageId", MESSAGE_ID
-        );
-
-        verify(telemetry).trackEvent(
-            eq(AppInsights.MESSAGE_RECEIVED),
-            eq(properties),
-            eq(null)
-        );
     }
 }

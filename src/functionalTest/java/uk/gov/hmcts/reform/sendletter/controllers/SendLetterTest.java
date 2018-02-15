@@ -86,7 +86,6 @@ public class SendLetterTest extends FunSuite {
 
         voidCompletableFuture.thenRun(() -> {
             verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), anyString());
-            verify(insights).trackMessageReceived(eq("some_service_name"), eq("abc"), anyString());
         });
     }
 
@@ -98,7 +97,6 @@ public class SendLetterTest extends FunSuite {
         send(readResource("letter.json")).andExpect(status().isInternalServerError());
 
         verify(insights, never()).trackMessageAcknowledgement(any(Duration.class), anyBoolean(), anyString());
-        verify(insights).trackMessageReceived(eq("some_service_name"), eq("abc"), anyString());
     }
 
     @Test
