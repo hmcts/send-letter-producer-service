@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.sendletter.FunSuite;
 import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
-import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
+import uk.gov.hmcts.reform.sendletter.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
 
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class SendLetterTest extends FunSuite {
         given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
         doNothing()
             .when(letterRepository)
-            .save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+            .save(any(DbLetter.class), any(Instant.class), anyString());
 
         MvcResult result = send(readResource("letter.json"))
             .andExpect(status().isOk())
@@ -82,7 +82,7 @@ public class SendLetterTest extends FunSuite {
 
         assertThat(result.getResponse().getContentAsString()).isNotNull();
 
-        verify(letterRepository).save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+        verify(letterRepository).save(any(DbLetter.class), any(Instant.class), anyString());
 
         voidCompletableFuture.thenRun(() -> {
             verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), anyString());

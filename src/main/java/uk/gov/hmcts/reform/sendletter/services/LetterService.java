@@ -16,10 +16,10 @@ import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
+import uk.gov.hmcts.reform.sendletter.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
-import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -77,14 +77,14 @@ public class LetterService {
             letter.type,
             id);
 
-        WithServiceNameAndId<Letter> letterWithServiceNameAndId = new WithServiceNameAndId<>(letter, serviceName, id);
+        DbLetter dbLetter = new DbLetter(id, serviceName, letter);
 
-        Message message = createQueueMessage(letterWithServiceNameAndId, messageId);
+        Message message = createQueueMessage(dbLetter, messageId);
 
         Instant startSending = Instant.now();
 
         //Save message details to db for reporting
-        letterRepository.save(letterWithServiceNameAndId, startSending, messageId);
+        letterRepository.save(dbLetter, startSending, messageId);
 
         CompletableFuture<Void> sendResult = sendClient.sendAsync(message);
 
@@ -128,10 +128,10 @@ public class LetterService {
         }
     }
 
-    private Message createQueueMessage(WithServiceNameAndId<Letter> letter, String messageId)
+    private Message createQueueMessage(DbLetter letter, String messageId)
         throws JsonProcessingException {
 
-        letter.obj.documents
+        letter.documents
             .forEach(document ->
                 insights.trackMessageReceived(letter.service, document.template, messageId));
 

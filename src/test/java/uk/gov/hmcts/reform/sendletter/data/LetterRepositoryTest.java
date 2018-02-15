@@ -11,8 +11,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import uk.gov.hmcts.reform.sendletter.SampleData;
+import uk.gov.hmcts.reform.sendletter.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
-import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -46,7 +46,7 @@ public class LetterRepositoryTest {
     @Test
     public void should_successfully_save_report_in_db() throws JsonProcessingException {
         //given
-        WithServiceNameAndId letterWithServiceNameAndId = new WithServiceNameAndId<>(letter, "cmc", UUID.randomUUID());
+        DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "cmc", letter);
 
         given(jdbcTemplate.update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class)))
             .willReturn(1234);
@@ -54,7 +54,7 @@ public class LetterRepositoryTest {
             .willReturn("{\"caseId\":\"1234\",\"type\":\"test\"}");
 
         //when
-        letterRepository.save(letterWithServiceNameAndId, Instant.now(), UUID.randomUUID().toString());
+        letterRepository.save(dbLetter, Instant.now(), UUID.randomUUID().toString());
 
         //then
         //No exception thrown and successfully saved in database
@@ -67,10 +67,7 @@ public class LetterRepositoryTest {
     public void should_throw_json_processing_exception_when_additional_data_cannot_be_converted_to_json()
         throws JsonProcessingException {
         //given
-        WithServiceNameAndId<Letter> letterWithServiceNameAndId = new WithServiceNameAndId<>(
-            letter,
-            "cmc",
-            UUID.randomUUID());
+        DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "cmc", letter);
 
         given(jdbcTemplate.update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class)))
             .willReturn(1234);
@@ -79,7 +76,8 @@ public class LetterRepositoryTest {
 
         // when
         Throwable exception = catchThrowable(() ->
-            letterRepository.save(letterWithServiceNameAndId, Instant.now(), UUID.randomUUID().toString()));
+            letterRepository.save(dbLetter, Instant.now(), UUID.randomUUID().toString())
+        );
 
         // then
         assertThat(exception).isInstanceOf(JsonProcessingException.class);
@@ -90,10 +88,7 @@ public class LetterRepositoryTest {
     @Test
     public void should_throw_sql_exception_and_not_save_report_in_db_when_database_connection_fails() {
         //given
-        WithServiceNameAndId<Letter> letterWithServiceNameAndId = new WithServiceNameAndId<>(
-            letter,
-            "cmc",
-            UUID.randomUUID());
+        DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "cmc", letter);
 
         given(jdbcTemplate.update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class)))
             .willReturn(1234);
@@ -104,7 +99,8 @@ public class LetterRepositoryTest {
 
         // when
         Throwable exception = catchThrowable(() ->
-            letterRepository.save(letterWithServiceNameAndId, Instant.now(), UUID.randomUUID().toString()));
+            letterRepository.save(dbLetter, Instant.now(), UUID.randomUUID().toString())
+        );
 
         // then
         assertThat(exception).isInstanceOf(SQLException.class);

@@ -18,10 +18,10 @@ import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
+import uk.gov.hmcts.reform.sendletter.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
-import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -96,7 +96,7 @@ public class LetterServiceTest {
         given(queueClient.closeAsync()).willReturn(voidCompletableFuture);
         doNothing()
             .when(letterRepository)
-            .save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+            .save(any(DbLetter.class), any(Instant.class), anyString());
 
         //when
         UUID letterUuid = service.send(letter, "service");
@@ -106,7 +106,7 @@ public class LetterServiceTest {
 
         verify(queueClientSupplier).get();
         verify(queueClient).sendAsync(any(Message.class));
-        verify(letterRepository).save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+        verify(letterRepository).save(any(DbLetter.class), any(Instant.class), anyString());
 
         voidCompletableFuture.thenRun(() -> {
             verify(queueClient).closeAsync();
@@ -121,7 +121,7 @@ public class LetterServiceTest {
         // given
         given(queueClientSupplier.get()).willReturn(queueClient);
         willThrow(CleanupFailureDataAccessException.class).given(letterRepository)
-            .save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+            .save(any(DbLetter.class), any(Instant.class), anyString());
 
         //when
         Throwable exception = catchThrowable(() -> service.send(letter, "service"));
@@ -130,7 +130,7 @@ public class LetterServiceTest {
         assertThat(exception).isInstanceOf(CleanupFailureDataAccessException.class);
 
         verify(queueClientSupplier).get();
-        verify(letterRepository).save(any(WithServiceNameAndId.class), any(Instant.class), anyString());
+        verify(letterRepository).save(any(DbLetter.class), any(Instant.class), anyString());
         verifyNoMoreInteractions(queueClientSupplier, letterRepository);
     }
 

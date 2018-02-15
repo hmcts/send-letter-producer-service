@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
-import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
+import uk.gov.hmcts.reform.sendletter.model.DbLetter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,7 +17,6 @@ import java.util.UUID;
 import static java.sql.Timestamp.from;
 import static java.util.Objects.nonNull;
 
-@SuppressWarnings("checkstyle:LineLength")
 @Repository
 public class LetterRepository {
 
@@ -33,20 +31,20 @@ public class LetterRepository {
         this.objectMapper = objectMapper;
     }
 
-    public void save(WithServiceNameAndId<Letter> letterWithServiceNameAndId, Instant messageSendTime, String messageId) throws JsonProcessingException {
+    public void save(DbLetter letter, Instant messageSendTime, String messageId) throws JsonProcessingException {
         jdbcTemplate.update(
             "INSERT INTO letters (id, message_id, service, created_at, sent_to_print_at, printed_at, additional_data)"
                 + "VALUES (:id, :messageId, :service, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON)",
             new MapSqlParameterSource()
-                .addValue("id", letterWithServiceNameAndId.id)
+                .addValue("id", letter.id)
                 .addValue("messageId", messageId)
-                .addValue("service", letterWithServiceNameAndId.service)
+                .addValue("service", letter.service)
                 .addValue("createdAt", from(messageSendTime))
-                .addValue("additionalData", convertToJson(letterWithServiceNameAndId.obj.additionalData))
+                .addValue("additionalData", convertToJson(letter.additionalData))
                 .addValue("sentToPrintAt", null)
                 .addValue("printedAt", null)
         );
-        log.info("Successfully saved letter data into database with id : {} and messageId :{}", letterWithServiceNameAndId.id, messageId);
+        log.info("Successfully saved letter data into database with id : {} and messageId :{}", letter.id, messageId);
     }
 
     /**
