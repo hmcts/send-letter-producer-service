@@ -105,7 +105,7 @@ public class LetterServiceTest {
         assertThat(letterId).isNotNull();
 
         verify(queueClientSupplier).get();
-        verify(queueClient).sendAsync(any(Message.class));
+        verify(queueClient).send(any(Message.class));
         verify(letterRepository).save(any(DbLetter.class), any(Instant.class), anyString());
 
         voidCompletableFuture.thenRun(() -> {
@@ -128,17 +128,16 @@ public class LetterServiceTest {
         //then
         assertThat(exception).isInstanceOf(CleanupFailureDataAccessException.class);
 
-        verify(queueClientSupplier).get();
+        verify(queueClientSupplier, never()).get();
         verify(letterRepository).save(any(DbLetter.class), any(Instant.class), anyString());
         verifyNoMoreInteractions(queueClientSupplier, letterRepository);
     }
 
     @Test
-    public void should_throw_send_message_exception_when_single_letter_is_sent() {
+    public void should_throw_send_message_exception_when_single_letter_is_sent() throws Exception {
         // given
         given(queueClientSupplier.get()).willReturn(queueClient);
-        given(queueClient.sendAsync(any(Message.class))).willReturn(failedCompletableFuture);
-        given(queueClient.closeAsync()).willReturn(voidCompletableFuture);
+        willThrow(new RuntimeException("test exception")).given(queueClient).send(any(Message.class));
 
         //when
         Throwable exception = catchThrowable(() -> service.send(letter, "service"));
@@ -149,7 +148,7 @@ public class LetterServiceTest {
             .hasMessageStartingWith("Could not send message to ServiceBus");
 
         verify(queueClientSupplier).get();
-        verify(queueClient).sendAsync(any(Message.class));
+        verify(queueClient).send(any(Message.class));
 
         failedCompletableFuture.thenRun(() -> {
             verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(false), anyString());
@@ -221,10 +220,12 @@ public class LetterServiceTest {
 
 
     @Test
-    public void should_rethrow_runtime_exception_if_invocation_fails() {
+    public void should_rethrow_runtime_exception_if_message_sending_fails() throws Exception {
+        RuntimeException thrownException = new RuntimeException("test exception");
+
         // given
         given(queueClientSupplier.get()).willReturn(queueClient);
-        willThrow(RuntimeException.class).given(queueClient).sendAsync(any(Message.class));
+        willThrow(thrownException).given(queueClient).send(any(Message.class));
 
         // when
         Throwable exception = catchThrowable(() -> service.send(letter, "service"));
@@ -234,8 +235,10 @@ public class LetterServiceTest {
             .isInstanceOf(RuntimeException.class);
 
         verify(queueClientSupplier).get();
-        verify(queueClient).sendAsync(any(Message.class));
-        verify(insights, never()).trackMessageAcknowledgement(any(Duration.class), anyBoolean(), anyString());
+        verify(queueClient).send(any(Message.class));
+        verify(queueClient).close();
+        verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(false), anyString());
+        verify(insights).trackException(thrownException);
         verifyNoMoreInteractions(queueClientSupplier, queueClient, insights);
     }
 

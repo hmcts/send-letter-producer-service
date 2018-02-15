@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
+import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.apache.http.util.Asserts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import static uk.gov.hmcts.reform.sendletter.services.LetterChecksumGenerator.generateChecksum;
@@ -66,10 +66,7 @@ public class LetterService {
     public UUID send(Letter letter, String serviceName) throws JsonProcessingException {
         Asserts.notEmpty(serviceName, "serviceName");
 
-        IQueueClient sendClient = queueClientSupplier.get();
-
         final String messageId = generateChecksum(letter);
-
         final UUID id = UUID.randomUUID();
 
         log.info("Generated message: id = {} for letter with print queue id = {} and letter id = {} ",
@@ -79,24 +76,40 @@ public class LetterService {
 
         DbLetter dbLetter = new DbLetter(id, serviceName, letter);
 
-        Message message = createQueueMessage(dbLetter, messageId);
-
-        Instant startSending = Instant.now();
-
         //Save message details to db for reporting
-        letterRepository.save(dbLetter, startSending, messageId);
-
-        CompletableFuture<Void> sendResult = sendClient.sendAsync(message);
-
-        sendResult.whenCompleteAsync((result, exc) ->
-            logMessageSendCompletion(startSending, messageId, exc)
-        ).thenRunAsync(sendClient::closeAsync);
-
-        if (sendResult.isCompletedExceptionally()) {
-            throw new SendMessageException("Could not send message to ServiceBus with " + messageId);
-        }
-
+        letterRepository.save(dbLetter, Instant.now(), messageId);
+        placeLetterInQueue(dbLetter, messageId);
         return id;
+    }
+
+    private void placeLetterInQueue(
+        DbLetter dbLetter,
+        String messageId
+    ) throws JsonProcessingException {
+
+        Instant sendingStartTime = Instant.now();
+        Message message = createQueueMessage(dbLetter, messageId);
+        IQueueClient sendClient = queueClientSupplier.get();
+
+        try {
+            sendClient.send(message);
+            logMessageSendCompletion(sendingStartTime, messageId, null);
+        } catch (Exception exc) {
+            logMessageSendCompletion(sendingStartTime, messageId, exc);
+
+            throw new SendMessageException(
+                String.format("Could not send message to ServiceBus. Message ID: %s", messageId),
+                exc
+            );
+        } finally {
+            try {
+                if (sendClient != null) {
+                    sendClient.close();
+                }
+            } catch (ServiceBusException exc) {
+                log.error("Failed to close the queue client", exc);
+            }
+        }
     }
 
     @Transactional

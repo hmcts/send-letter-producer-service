@@ -29,17 +29,14 @@ import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -66,12 +63,11 @@ public class SendLetterTest extends FunSuite {
     @MockBean
     private LetterRepository letterRepository;
 
-    private final CompletableFuture<Void> voidCompletableFuture = CompletableFuture.completedFuture(null);
 
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
-        given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
+
         doNothing()
             .when(letterRepository)
             .save(any(DbLetter.class), any(Instant.class), anyString());
@@ -83,20 +79,17 @@ public class SendLetterTest extends FunSuite {
         assertThat(result.getResponse().getContentAsString()).isNotNull();
 
         verify(letterRepository).save(any(DbLetter.class), any(Instant.class), anyString());
-
-        voidCompletableFuture.thenRun(() -> {
-            verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), anyString());
-        });
+        verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(true), anyString());
     }
 
     @Test
     public void should_return_500_when_sending_message_has_failed() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
-        willThrow(ServiceBusException.class).given(queueClient).sendAsync(any(Message.class));
+        willThrow(ServiceBusException.class).given(queueClient).send(any(Message.class));
 
         send(readResource("letter.json")).andExpect(status().isInternalServerError());
 
-        verify(insights, never()).trackMessageAcknowledgement(any(Duration.class), anyBoolean(), anyString());
+        verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(false), anyString());
     }
 
     @Test
