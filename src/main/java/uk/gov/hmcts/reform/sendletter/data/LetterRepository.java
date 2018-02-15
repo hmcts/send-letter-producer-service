@@ -31,7 +31,7 @@ public class LetterRepository {
         this.objectMapper = objectMapper;
     }
 
-    public void save(DbLetter letter, Instant messageSendTime, String messageId) throws JsonProcessingException {
+    public void save(DbLetter letter, Instant creationTime, String messageId) throws JsonProcessingException {
         jdbcTemplate.update(
             "INSERT INTO letters (id, message_id, service, created_at, sent_to_print_at, printed_at, additional_data)"
                 + "VALUES (:id, :messageId, :service, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON)",
@@ -39,7 +39,7 @@ public class LetterRepository {
                 .addValue("id", letter.id)
                 .addValue("messageId", messageId)
                 .addValue("service", letter.service)
-                .addValue("createdAt", from(messageSendTime))
+                .addValue("createdAt", from(creationTime))
                 .addValue("additionalData", convertToJson(letter.additionalData))
                 .addValue("sentToPrintAt", null)
                 .addValue("printedAt", null)
