@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
@@ -101,6 +102,14 @@ public class LetterService {
     @Transactional
     public void updateSentToPrintAt(UUID id, LetterSentToPrintAtPatch patch) {
         int numberOfUpdatedRows = letterRepository.updateSentToPrintAt(id, patch.sentToPrintAt);
+        if (numberOfUpdatedRows == 0) {
+            throw new LetterNotFoundException(id);
+        }
+    }
+
+    @Transactional
+    public void updatePrintedAt(UUID id, LetterPrintedAtPatch patch) {
+        int numberOfUpdatedRows = letterRepository.updatePrintedAt(id, patch.printedAt);
         if (numberOfUpdatedRows == 0) {
             throw new LetterNotFoundException(id);
         }

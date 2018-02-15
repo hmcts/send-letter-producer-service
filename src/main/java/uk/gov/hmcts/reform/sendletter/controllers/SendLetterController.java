@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
@@ -92,6 +93,19 @@ public class SendLetterController {
     ) {
         tokenValidator.getServiceName(serviceAuthHeader); //TODO: check that this service is allowed to do it
         letterService.updateSentToPrintAt(getLetterIdFromString(id), patch);
+
+        return noContent().build();
+    }
+
+    @PutMapping(path = "/{id}/printed-at")
+    @ApiOperation(value = "Update when letter was printed")
+    public ResponseEntity<Void> updatePrintedAt(
+        @PathVariable("id") String id,
+        @RequestBody LetterPrintedAtPatch patch,
+        @RequestHeader("ServiceAuthorization") String serviceAuthHeader
+    ) {
+        tokenValidator.getServiceName(serviceAuthHeader); //TODO: check that this service is allowed to do it
+        letterService.updatePrintedAt(getLetterIdFromString(id), patch);
 
         return noContent().build();
     }

@@ -63,6 +63,20 @@ public class LetterRepository {
         );
     }
 
+    /**
+     * Updates the `printed_at` column on letter(s) with given id.
+     *
+     * @return number of updated rows.
+     */
+    public int updatePrintedAt(UUID id, LocalDateTime dateTime) {
+        return jdbcTemplate.update(
+            "UPDATE letters SET printed_at = :printedAt WHERE id = :id",
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("printedAt", dateTime)
+        );
+    }
+
     private String convertToJson(Map<String, Object> additionalData) throws JsonProcessingException {
         if (nonNull(additionalData)) {
             return objectMapper.writeValueAsString(additionalData);

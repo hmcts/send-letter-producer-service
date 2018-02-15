@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.SendMessageException;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.WithServiceNameAndId;
 
@@ -279,5 +280,32 @@ public class LetterServiceTest {
 
         // then
         verify(letterRepository).updateSentToPrintAt(id, sentToPrintAt);
+    }
+
+    @Test
+    public void updatePrintedAt_should_throw_an_exception_if_no_letters_were_updated() {
+        given(letterRepository.updatePrintedAt(any(), any())).willReturn(0);
+
+        Throwable exc = catchThrowable(() -> {
+            service.updatePrintedAt(
+                UUID.randomUUID(),
+                new LetterPrintedAtPatch(LocalDateTime.now())
+            );
+        });
+
+        assertThat(exc).isInstanceOf(LetterNotFoundException.class);
+    }
+
+    @Test
+    public void updatePrintedAt_should_pass_correct_data_to_update_database() {
+        given(letterRepository.updatePrintedAt(any(), any())).willReturn(1);
+        UUID id = UUID.randomUUID();
+        LocalDateTime dateTime = LocalDateTime.now();
+
+        // when
+        service.updatePrintedAt(id, new LetterPrintedAtPatch(dateTime));
+
+        // then
+        verify(letterRepository).updatePrintedAt(id, dateTime);
     }
 }
