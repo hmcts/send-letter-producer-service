@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
+import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import java.util.UUID;
@@ -40,13 +41,16 @@ public class SendLetterController {
 
     private final LetterService letterService;
     private final AuthTokenValidator tokenValidator;
+    private final AuthChecker authChecker;
 
     public SendLetterController(
         LetterService letterService,
-        AuthTokenValidator tokenValidator
+        AuthTokenValidator tokenValidator,
+        AuthChecker authChecker
     ) {
         this.letterService = letterService;
         this.tokenValidator = tokenValidator;
+        this.authChecker = authChecker;
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -91,7 +95,8 @@ public class SendLetterController {
         @RequestBody LetterSentToPrintAtPatch patch,
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader
     ) {
-        tokenValidator.getServiceName(serviceAuthHeader); //TODO: check that this service is allowed to do it
+        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
+        authChecker.assertCanUpdateLetter(serviceName);
         letterService.updateSentToPrintAt(getLetterIdFromString(id), patch);
 
         return noContent().build();
@@ -104,7 +109,8 @@ public class SendLetterController {
         @RequestBody LetterPrintedAtPatch patch,
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader
     ) {
-        tokenValidator.getServiceName(serviceAuthHeader); //TODO: check that this service is allowed to do it
+        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
+        authChecker.assertCanUpdateLetter(serviceName);
         letterService.updatePrintedAt(getLetterIdFromString(id), patch);
 
         return noContent().build();

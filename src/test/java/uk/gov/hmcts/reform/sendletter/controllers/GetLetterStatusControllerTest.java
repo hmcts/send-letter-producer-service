@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
+import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import java.util.UUID;
@@ -32,14 +33,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 public class GetLetterStatusControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @MockBean
-    private LetterService service;
-
-    @MockBean
-    private AuthTokenValidator tokenValidator;
+    @MockBean private LetterService service;
+    @MockBean private AuthTokenValidator tokenValidator;
+    @MockBean private AuthChecker authChecker;
 
     private UUID letterId;
 

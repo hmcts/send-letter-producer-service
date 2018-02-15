@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
+import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import java.util.UUID;
@@ -27,6 +28,7 @@ public class UpdateSentToPrintTest {
 
     @MockBean private LetterService letterService; //NOPMD
     @MockBean private AuthTokenValidator tokenValidator;
+    @MockBean private AuthChecker authChecker;
 
     @Test
     public void should_return_204_on_successful_update() throws Exception {
@@ -53,6 +55,7 @@ public class UpdateSentToPrintTest {
         );
 
         verify(tokenValidator).getServiceName(serviceToken);
+        verify(authChecker).assertCanUpdateLetter(anyString());
     }
 
 }

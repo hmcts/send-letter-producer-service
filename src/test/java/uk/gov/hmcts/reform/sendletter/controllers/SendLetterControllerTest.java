@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import java.io.IOException;
@@ -40,12 +41,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 public class SendLetterControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @MockBean
-    private LetterService letterService;
-    @MockBean
-    private AuthTokenValidator tokenValidator;
+    @Autowired private MockMvc mockMvc;
+
+    @MockBean private LetterService letterService;
+    @MockBean private AuthTokenValidator tokenValidator;
+    @MockBean private AuthChecker authChecker;
+
 
     @Test
     public void should_return_message_id_when_letter_is_successfully_sent() throws Exception {

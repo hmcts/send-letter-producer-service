@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
+import uk.gov.hmcts.reform.sendletter.exception.UnauthorizedException;
 import uk.gov.hmcts.reform.sendletter.model.errors.FieldError;
 import uk.gov.hmcts.reform.sendletter.model.errors.ModelValidationError;
 
@@ -69,6 +70,11 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<String> handleJsonProcessingException() {
         return status(HttpStatus.BAD_REQUEST)
             .body("Exception occured while parsing letter contents");
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    protected ResponseEntity<String> handleUnauthorizedException() {
+        return status(HttpStatus.FORBIDDEN).build();
     }
 
     @ExceptionHandler(Exception.class)
