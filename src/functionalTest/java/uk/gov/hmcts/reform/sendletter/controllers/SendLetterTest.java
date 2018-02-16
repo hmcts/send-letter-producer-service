@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.sendletter.FunSuite;
 import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
@@ -36,7 +35,6 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,7 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Transactional(transactionManager = "mockedTransactionManager")
 public class SendLetterTest extends FunSuite {
 
     @Autowired
@@ -60,17 +57,13 @@ public class SendLetterTest extends FunSuite {
     @Mock
     private IQueueClient queueClient;
 
-    @MockBean
+    @SpyBean
     private LetterRepository letterRepository;
 
 
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
-
-        doNothing()
-            .when(letterRepository)
-            .save(any(DbLetter.class), any(Instant.class), anyString());
 
         MvcResult result = send(readResource("letter.json"))
             .andExpect(status().isOk())
