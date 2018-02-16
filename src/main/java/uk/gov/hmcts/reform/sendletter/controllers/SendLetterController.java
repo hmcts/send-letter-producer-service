@@ -81,9 +81,8 @@ public class SendLetterController {
         @PathVariable String id,
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader
     ) {
-        UUID letterId = getLetterIdFromString(id);
         String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
-        LetterStatus letterStatus = letterService.getStatus(letterId, serviceName);
+        LetterStatus letterStatus = letterService.getStatus(getLetterIdFromString(id), serviceName);
 
         return ok(letterStatus);
     }

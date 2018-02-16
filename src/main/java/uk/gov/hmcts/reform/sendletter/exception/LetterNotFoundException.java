@@ -5,7 +5,7 @@ import java.util.UUID;
 public class LetterNotFoundException extends RuntimeException {
 
     public LetterNotFoundException(String letterId, Throwable cause) {
-        super("Letter with '" + letterId + "' not found", cause);
+        super("Letter with ID '" + letterId + "' not found", cause);
     }
 
     public LetterNotFoundException(UUID id) {

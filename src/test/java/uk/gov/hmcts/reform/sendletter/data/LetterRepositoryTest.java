@@ -8,20 +8,29 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import uk.gov.hmcts.reform.sendletter.SampleData;
+import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -107,5 +116,34 @@ public class LetterRepositoryTest {
 
         verify(jdbcTemplate).update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class));
         verifyNoMoreInteractions(jdbcTemplate);
+    }
+
+    @Test
+    public void should_successfully_get_letter_status() {
+        ZonedDateTime now = LocalDateTime.now().atZone(ZoneId.systemDefault());
+        LetterStatus status = new LetterStatus(UUID.randomUUID(), "some-message-id", now, now, now);
+
+        given(jdbcTemplate.queryForObject(
+            anyString(),
+            any(MapSqlParameterSource.class),
+            eq(LetterMapperFactory.LETTER_STATUS_MAPPER)
+        )).willReturn(status);
+
+        Optional<LetterStatus> result = letterRepository.getLetterStatus(status.id, "some-service");
+
+        assertThat(result.orElse(null)).isNotNull();
+    }
+
+    @Test
+    public void should_return_empty_optional_case_when_no_letters_found() {
+        willThrow(EmptyResultDataAccessException.class).given(jdbcTemplate).queryForObject(
+            anyString(),
+            any(MapSqlParameterSource.class),
+            eq(LetterMapperFactory.LETTER_STATUS_MAPPER)
+        );
+
+        Optional<LetterStatus> result = letterRepository.getLetterStatus(UUID.randomUUID(), "some-service");
+
+        assertThat(result.orElse(null)).isNull();
     }
 }

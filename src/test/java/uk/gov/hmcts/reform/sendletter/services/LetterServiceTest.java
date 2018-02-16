@@ -26,6 +26,9 @@ import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -80,12 +83,25 @@ public class LetterServiceTest {
 
     @Test
     public void should_return_letter_status_when_it_is_found_in_database() {
-        UUID letterId = UUID.randomUUID();
-        LetterStatus status = service.getStatus(letterId, "service-name");
+        ZonedDateTime now = LocalDateTime.now().atZone(ZoneId.systemDefault());
+        LetterStatus status = new LetterStatus(UUID.randomUUID(), "some-message-id", now, now, now);
 
-        assertThat(status)
-            .extracting("id")
-            .containsExactly(letterId);
+        given(letterRepository.getLetterStatus(status.id, "service-name")).willReturn(Optional.of(status));
+
+        assertThat(service.getStatus(status.id, "service-name"))
+            .isEqualToComparingFieldByField(status);
+    }
+
+    @Test
+    public void should_throw_letter_not_found_exception_when_not_in_database() {
+        UUID id = UUID.randomUUID();
+        given(letterRepository.getLetterStatus(id, "service-name")).willReturn(Optional.empty());
+
+        Throwable exception = catchThrowable(() -> service.getStatus(id, "service-name"));
+
+        assertThat(exception)
+            .isInstanceOf(LetterNotFoundException.class)
+            .hasMessage("Letter with ID '" + id.toString() + "' not found");
     }
 
     @Test

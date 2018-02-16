@@ -34,6 +34,9 @@ spring:
       abandonWhenPercentageFull: 0
       testOnBorrow: true
       validationQuery: SELECT 1
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
 
 servicebus:
   queue:

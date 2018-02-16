@@ -57,9 +57,9 @@ public class LetterService {
     }
 
     public LetterStatus getStatus(UUID id, String serviceName) throws LetterNotFoundException {
-        // TODO implement dao call
-
-        return new LetterStatus(id);
+        return letterRepository
+            .getLetterStatus(id, serviceName)
+            .orElseThrow(() -> new LetterNotFoundException(id));
     }
 
     @Transactional
