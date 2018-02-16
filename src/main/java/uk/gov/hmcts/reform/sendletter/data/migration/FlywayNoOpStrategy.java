@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sendletter.database.migration;
+package uk.gov.hmcts.reform.sendletter.data.migration;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;

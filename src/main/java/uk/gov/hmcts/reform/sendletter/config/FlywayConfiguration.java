@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.sendletter.database.migration.FlywayNoOpStrategy;
+import uk.gov.hmcts.reform.sendletter.data.migration.FlywayNoOpStrategy;
 
 @AutoConfigureAfter({
     DataSourceAutoConfiguration.class,
