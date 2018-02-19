@@ -127,7 +127,7 @@ distributions {
 
 def versions = [
   springfoxSwagger: '2.7.0',
-  logging: '1.5.0',
+  logging: '1.6.1',
   jackson: dependencyManagement.importedProperties['jackson.version'],
 ]
 
