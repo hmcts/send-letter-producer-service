@@ -62,3 +62,14 @@ module "send-letter-producer-service" {
     LETTER_TRACKING_DB_NAME       = "${module.db.postgresql_database}"
   }
 }
+
+# save the app's URL to vault
+resource "vault_generic_secret" "producer_url" {
+  path = "secret/${var.env}/cc/send-letter/producer-url"
+
+  data_json = <<EOT
+    {
+      "value": "${module.send-letter-producer-service.url}"
+    }
+    EOT
+}
