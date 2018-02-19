@@ -2,41 +2,16 @@ version: '2.1'
 
 services:
   send-letter-producer-service:
-    build:
-      context: .
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: docker.artifactory.reform.hmcts.net/reform/send-letter-producer-service
-    container_name: send-letter-producer-service
-    environment:
-      - APPLICATION_INSIGHTS_IKEY
-      - LETTER_TRACKING_DB_PASSWORD
-      - SERVICE_BUS_CONNECTION_STRING
-      - SERVICE_QUEUE_MESSAGE_TTL_IN_DAYS
-      - S2S_URL
-      # these environment variables are used by java-logging library
-      - ROOT_APPENDER
-      - JSON_CONSOLE_PRETTY_PRINT
-      - ROOT_LOGGING_LEVEL
-      - REFORM_SERVICE_NAME
-      - REFORM_TEAM
-      - REFORM_ENVIRONMENT
-    ports:
-      - $SERVER_PORT:$SERVER_PORT
+    extends:
+      file: docker-compose-core.yml
+      service: service
     depends_on:
       send-letter-producer-database:
         condition: service_healthy
   send-letter-producer-database:
-    build:
-      context: docker/database
-    image: docker.artifactory.reform.hmcts.net/reform/send-letter-producer-database
-    container_name: send-letter-producer-database
-    environment:
-      - LETTER_TRACKING_DB_PASSWORD
-    ports:
-      - 5429:5432
+    extends:
+      file: docker-compose-core.yml
+      service: database
     volumes:
       - send-letter-producer-database-data:/var/lib/postgresql/data
 

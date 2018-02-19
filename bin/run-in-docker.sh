@@ -10,6 +10,7 @@ print_help() {
   Options:
     --clean, -c                         Clean and install current state of source code
     --install, -i                       Install current state of source code
+    --with-flyway, -f                   Run docker compose with flyway enabled
     --param PARAM=, -p PARAM=           Parse script parameter
     --help, -h                          Print this help block
 
@@ -25,6 +26,7 @@ print_help() {
 # script execution flags
 GRADLE_CLEAN=false
 GRADLE_INSTALL=false
+FLYWAY_ENABLED=false
 
 # environment variables
 APPLICATION_INSIGHTS_IKEY="00000000-0000-0000-0000-000000000000"
@@ -58,7 +60,12 @@ execute_script() {
 
   echo "Bringing up docker containers.."
 
-  docker-compose up
+  if [ ${FLYWAY_ENABLED} = true ]
+  then
+    docker-compose -f docker-compose-flyway.yml up
+  else
+    docker-compose up
+  fi
 }
 
 while true ; do
@@ -66,6 +73,7 @@ while true ; do
     -h|--help) print_help ; shift ; break ;;
     -c|--clean) GRADLE_CLEAN=true ; GRADLE_INSTALL=true ; shift ;;
     -i|--install) GRADLE_INSTALL=true ; shift ;;
+    -f|--with-flyway) FLYWAY_ENABLED=true ; shift ;;
     -p|--param)
       case "$2" in
         APPLICATION_INSIGHTS_IKEY=*) APPLICATION_INSIGHTS_IKEY="${2#*=}" ; shift 2 ;;
