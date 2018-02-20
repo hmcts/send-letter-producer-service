@@ -15,6 +15,8 @@ flyway {
   url = System.getenv('FLYWAY_URL')
   user = System.getenv('FLYWAY_USER')
   password = System.getenv('FLYWAY_PASSWORD')
+  baselineOnMigrate = true
+  baselineVersion = '000'
 }
 
 group = 'uk.gov.hmcts.reform'

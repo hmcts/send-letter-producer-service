@@ -60,6 +60,9 @@ module "send-letter-producer-service" {
     LETTER_TRACKING_DB_USER_NAME  = "${module.db.user_name}"
     LETTER_TRACKING_DB_PASSWORD   = "${module.db.postgresql_password}"
     LETTER_TRACKING_DB_NAME       = "${module.db.postgresql_database}"
+    FLYWAY_URL                    = "jdbc:postgresql://${module.db.host_name}:${module.db.postgresql_listen_port}/${module.db.postgresql_database}"
+    FLYWAY_USER                   = "${module.db.user_name}"
+    FLYWAY_PASSWORD               = "${module.db.postgresql_password}"
   }
 }
 
