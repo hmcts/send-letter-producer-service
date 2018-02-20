@@ -127,8 +127,9 @@ distributions {
 
 def versions = [
   springfoxSwagger: '2.7.0',
-  logging: '1.6.1',
+  reformLogging: '1.6.1',
   jackson: dependencyManagement.importedProperties['jackson.version'],
+  logback: '1.2.3'
 ]
 
 dependencies {
@@ -145,11 +146,14 @@ dependencies {
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
   compile group: 'io.springfox', name: 'springfox-swagger-ui', version: versions.springfoxSwagger
 
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: versions.logging
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.logging
-  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: versions.logging
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: versions.reformLogging
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
+  compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: versions.reformLogging
   compile group: 'uk.gov.hmcts.reform', name: 'http-proxy-spring-boot-autoconfigure', version: '1.1.0'
   compile group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '0.4.2'
+
+  compile group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
+  compile group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
 
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-hystrix', version: '1.4.0.RELEASE'
   compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-hystrix-dashboard', version: '1.4.0.RELEASE'
