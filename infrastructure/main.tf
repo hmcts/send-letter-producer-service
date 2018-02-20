@@ -36,7 +36,7 @@ resource "vault_generic_secret" "servicebus-listen-conn-string" {
 }
 
 module "db" {
-  source              = "git@github.com:contino/moj-module-postgres.git"
+  source              = "git@github.com:contino/moj-module-postgres.git?ref=feature/specify-db-name"
   product             = "${var.product}"
   location            = "${var.location_db}"
   env                 = "${var.env}"
