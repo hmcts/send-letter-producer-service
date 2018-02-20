@@ -128,6 +128,14 @@ public class LetterService {
         }
     }
 
+    @Transactional
+    public void updateIsFailed(UUID id) {
+        int numberOfUpdatedRows = letterRepository.updateIsFailed(id);
+        if (numberOfUpdatedRows == 0) {
+            throw new LetterNotFoundException(id);
+        }
+    }
+
     private void logMessageSendCompletion(Instant started, String messageId, Throwable exception) {
         Duration tookSending = Duration.between(started, Instant.now());
         boolean hasFailed = exception != null;

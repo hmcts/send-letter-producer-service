@@ -53,9 +53,8 @@ public class LetterRepository {
     /**
      * Retrieve letter status with given ID and service name.
      *
-     * @param id UUID
+     * @param id          UUID
      * @param serviceName String
-     *
      * @return Letter status.
      */
     public Optional<LetterStatus> getLetterStatus(UUID id, String serviceName) {
@@ -103,6 +102,21 @@ public class LetterRepository {
                 .addValue("printedAt", dateTime)
         );
     }
+
+    /**
+     * Updates the `is_failed` column to `true`  on letter with given id.
+     *
+     * @return number of updated rows.
+     */
+    public int updateIsFailed(UUID id) {
+        return jdbcTemplate.update(
+            "UPDATE letters SET is_failed = :isFailed WHERE id = :id",
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("isFailed", true)
+        );
+    }
+
 
     private String convertToJson(Map<String, Object> additionalData) throws JsonProcessingException {
         if (nonNull(additionalData)) {

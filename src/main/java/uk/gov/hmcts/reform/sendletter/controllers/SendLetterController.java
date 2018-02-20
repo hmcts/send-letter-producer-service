@@ -115,6 +115,19 @@ public class SendLetterController {
         return noContent().build();
     }
 
+    @PutMapping(path = "/{id}/is-failed")
+    @ApiOperation(value = "Update failed status when letter was sent to dead letter queue")
+    public ResponseEntity<Void> updateFailedStatus(
+        @PathVariable("id") String id,
+        @RequestHeader("ServiceAuthorization") String serviceAuthHeader
+    ) {
+        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
+        authChecker.assertCanUpdateLetter(serviceName);
+        letterService.updateIsFailed(getLetterIdFromString(id));
+
+        return noContent().build();
+    }
+
     private UUID getLetterIdFromString(String letterId) {
         try {
             return UUID.fromString(letterId);

@@ -60,7 +60,6 @@ public class SendLetterTest extends FunSuite {
     @SpyBean
     private LetterRepository letterRepository;
 
-
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
@@ -78,6 +77,7 @@ public class SendLetterTest extends FunSuite {
     @Test
     public void should_return_500_when_sending_message_has_failed() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
+
         willThrow(ServiceBusException.class).given(queueClient).send(any(Message.class));
 
         send(readResource("letter.json")).andExpect(status().isInternalServerError());

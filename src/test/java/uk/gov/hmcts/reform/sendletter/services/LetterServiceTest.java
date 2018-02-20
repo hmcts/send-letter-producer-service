@@ -323,4 +323,26 @@ public class LetterServiceTest {
         // then
         verify(letterRepository).updatePrintedAt(id, dateTime);
     }
+
+    @Test
+    public void updateIsFailed_should_throw_an_exception_if_no_letters_were_updated() {
+        given(letterRepository.updateIsFailed(any())).willReturn(0);
+
+        Throwable exc = catchThrowable(() -> {
+            service.updateIsFailed(UUID.randomUUID());
+        });
+
+        assertThat(exc).isInstanceOf(LetterNotFoundException.class);
+    }
+
+    @Test
+    public void updateIsFailed_should_pass_correct_data_to_update_database() {
+        given(letterRepository.updateIsFailed(any())).willReturn(1);
+        UUID id = UUID.randomUUID();
+        // when
+        service.updateIsFailed(id);
+
+        // then
+        verify(letterRepository).updateIsFailed(id);
+    }
 }
