@@ -52,6 +52,8 @@ task functionalTest(type: Test) {
   description = "Runs Functional Tests"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
+
+  environment("APPLICATION_INSIGHTS_IKEY", "some-key")
 }
 
 checkstyle {
@@ -168,7 +170,6 @@ dependencies {
 
   functionalTestCompile sourceSets.main.runtimeClasspath
   functionalTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
-  functionalTestCompile group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.17.1'
   functionalTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.6.0'
 }
 
