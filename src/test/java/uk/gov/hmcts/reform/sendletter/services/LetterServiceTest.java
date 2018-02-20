@@ -84,7 +84,7 @@ public class LetterServiceTest {
     @Test
     public void should_return_letter_status_when_it_is_found_in_database() {
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneId.systemDefault());
-        LetterStatus status = new LetterStatus(UUID.randomUUID(), "some-message-id", now, now, now);
+        LetterStatus status = new LetterStatus(UUID.randomUUID(), "some-message-id", now, now, now, false);
 
         given(letterRepository.getLetterStatus(status.id, "service-name")).willReturn(Optional.of(status));
 

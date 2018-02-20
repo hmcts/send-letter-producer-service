@@ -33,7 +33,8 @@ final class LetterMapperFactory {
                 rs.getString("message_id"),
                 getDateTime(rs, "created_at"),
                 getDateTime(rs, "sent_to_print_at"),
-                getDateTime(rs, "printed_at")
+                getDateTime(rs, "printed_at"),
+                rs.getBoolean("is_failed")
             );
         }
     }

@@ -60,7 +60,7 @@ public class LetterRepository {
     public Optional<LetterStatus> getLetterStatus(UUID id, String serviceName) {
         try {
             LetterStatus status = jdbcTemplate.queryForObject(
-                "SELECT id, message_id, created_at, sent_to_print_at, printed_at "
+                "SELECT id, message_id, created_at, sent_to_print_at, printed_at, is_failed "
                     + "FROM letters "
                     + "WHERE id = :id AND service = :service",
                 new MapSqlParameterSource()

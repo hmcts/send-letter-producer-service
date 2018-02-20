@@ -21,17 +21,22 @@ public class LetterStatus {
     @JsonProperty("printed_at")
     public final ZonedDateTime printedAt;
 
+    @JsonProperty("has_failed")
+    public final boolean hasFailed;
+
     public LetterStatus(
         final UUID id,
         final String messageId,
         final ZonedDateTime createdAt,
         final ZonedDateTime sentToPrintAt,
-        final ZonedDateTime printedAt
+        final ZonedDateTime printedAt,
+        final boolean hasFailed
     ) {
         this.id = id;
         this.messageId = messageId;
         this.createdAt = createdAt;
         this.sentToPrintAt = sentToPrintAt;
         this.printedAt = printedAt;
+        this.hasFailed = hasFailed;
     }
 }

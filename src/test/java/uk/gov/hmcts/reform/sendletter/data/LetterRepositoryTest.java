@@ -121,7 +121,7 @@ public class LetterRepositoryTest {
     @Test
     public void should_successfully_get_letter_status() {
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneId.systemDefault());
-        LetterStatus status = new LetterStatus(UUID.randomUUID(), "some-message-id", now, now, now);
+        LetterStatus status = new LetterStatus(UUID.randomUUID(), "some-message-id", now, now, now, false);
 
         given(jdbcTemplate.queryForObject(
             anyString(),
