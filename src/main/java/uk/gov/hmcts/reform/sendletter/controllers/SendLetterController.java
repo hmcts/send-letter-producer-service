@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
+import uk.gov.hmcts.reform.sendletter.domain.SendLetterResponse;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.model.Letter;
 import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
@@ -53,12 +54,12 @@ public class SendLetterController {
         this.authChecker = authChecker;
     }
 
-    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Send letter to print and post service")
     @ApiResponses({
-        @ApiResponse(code = 200, response = UUID.class, message = "Successfully sent letter")
+        @ApiResponse(code = 200, response = SendLetterResponse.class, message = "Successfully sent letter")
     })
-    public ResponseEntity<UUID> sendLetter(
+    public ResponseEntity<SendLetterResponse> sendLetter(
         @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
         @ApiParam(value = "Letter consisting of documents and type", required = true)
         @Valid @RequestBody Letter letter
@@ -67,7 +68,7 @@ public class SendLetterController {
         String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
         UUID letterId = letterService.send(letter, serviceName);
 
-        return ok().body(letterId);
+        return ok().body(new SendLetterResponse(letterId));
     }
 
     @GetMapping(path = "/{id}")

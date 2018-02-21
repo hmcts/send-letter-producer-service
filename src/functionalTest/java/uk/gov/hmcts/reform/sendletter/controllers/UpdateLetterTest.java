@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sendletter.controllers;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.microsoft.azure.servicebus.IQueueClient;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,6 @@ import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import java.io.IOException;
 import java.util.UUID;
 
-import static org.apache.commons.lang3.StringUtils.strip;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -65,14 +65,14 @@ public class UpdateLetterTest {
         //given
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("sendletterconsumer");
 
-        String letterId = send(readResource("letter.json"))
+        String response = send(readResource("letter.json"))
             .andReturn()
             .getResponse()
             .getContentAsString();
 
-        //when
-        //Double quotes needs to be stripped from letterId as getContentAsString() returns String in format ""uuid""
-        update(strip(letterId, "\"") + "/is-failed")
+        String letterId = new JSONObject(response).getString("letter_id");
+
+        update(letterId + "/is-failed")
             .andExpect(status().is(204));
 
         verify(authChecker).assertCanUpdateLetter("sendletterconsumer");

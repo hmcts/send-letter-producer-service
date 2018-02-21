@@ -57,7 +57,7 @@ public class SendLetterControllerTest {
 
         sendLetter(readResource("letter.json"))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString(letterId.toString())));
+            .andExpect(content().json("{\"letter_id\":" + letterId + "}"));
 
         verify(tokenValidator).getServiceName("auth-header-value");
         verify(letterService).send(any(Letter.class), eq("service-name"));
