@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.sendletter;
 
 import com.google.common.collect.ImmutableMap;
-import uk.gov.hmcts.reform.sendletter.model.Document;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.in.Document;
+import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 
 import java.util.UUID;
 

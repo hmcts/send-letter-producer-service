@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sendletter.model;
+package uk.gov.hmcts.reform.sendletter.model.in;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

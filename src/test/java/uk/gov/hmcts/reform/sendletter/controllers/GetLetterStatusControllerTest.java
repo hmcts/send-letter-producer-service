@@ -12,8 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
-import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
+import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 

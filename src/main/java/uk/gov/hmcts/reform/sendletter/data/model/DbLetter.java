@@ -1,4 +1,7 @@
-package uk.gov.hmcts.reform.sendletter.model;
+package uk.gov.hmcts.reform.sendletter.data.model;
+
+import uk.gov.hmcts.reform.sendletter.model.in.Document;
+import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 
 import java.util.List;
 import java.util.Map;

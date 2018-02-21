@@ -20,8 +20,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
+import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
-import uk.gov.hmcts.reform.sendletter.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
 
 import java.io.IOException;

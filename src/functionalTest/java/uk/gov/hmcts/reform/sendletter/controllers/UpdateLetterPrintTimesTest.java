@@ -16,9 +16,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.data.LetterRepository;
-import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
-import uk.gov.hmcts.reform.sendletter.model.DbLetter;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
+import uk.gov.hmcts.reform.sendletter.model.in.Letter;
+import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
 
 import java.time.ZoneOffset;

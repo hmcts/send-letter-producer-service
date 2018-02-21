@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sendletter.domain;
+package uk.gov.hmcts.reform.sendletter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;

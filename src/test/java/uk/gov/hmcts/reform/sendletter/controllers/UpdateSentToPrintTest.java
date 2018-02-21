@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 public class UpdateSentToPrintTest {
 
-    @Autowired  private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
     @MockBean private LetterService letterService; //NOPMD
     @MockBean private AuthTokenValidator tokenValidator;

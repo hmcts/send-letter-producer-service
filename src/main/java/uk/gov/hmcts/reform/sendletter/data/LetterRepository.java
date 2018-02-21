@@ -8,8 +8,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
-import uk.gov.hmcts.reform.sendletter.model.DbLetter;
+import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
+import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

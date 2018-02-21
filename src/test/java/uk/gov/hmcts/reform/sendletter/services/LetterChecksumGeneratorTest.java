@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.sendletter.services;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import uk.gov.hmcts.reform.sendletter.model.Document;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.in.Document;
+import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;

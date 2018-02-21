@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.sendletter.data;
 
 import org.springframework.jdbc.core.RowMapper;
-import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
+import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

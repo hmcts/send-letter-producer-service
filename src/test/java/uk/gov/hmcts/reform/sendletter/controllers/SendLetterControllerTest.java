@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 

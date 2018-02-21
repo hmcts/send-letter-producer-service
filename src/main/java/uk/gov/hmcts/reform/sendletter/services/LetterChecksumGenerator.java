@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.sendletter.services;
 
 import org.springframework.util.DigestUtils;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
+import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 
 import static org.springframework.util.SerializationUtils.serialize;
 

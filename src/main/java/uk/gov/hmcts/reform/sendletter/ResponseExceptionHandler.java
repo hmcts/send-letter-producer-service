@@ -15,8 +15,8 @@ import uk.gov.hmcts.reform.authorisation.exceptions.InvalidTokenException;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.UnauthorizedException;
-import uk.gov.hmcts.reform.sendletter.model.errors.FieldError;
-import uk.gov.hmcts.reform.sendletter.model.errors.ModelValidationError;
+import uk.gov.hmcts.reform.sendletter.model.out.errors.FieldError;
+import uk.gov.hmcts.reform.sendletter.model.out.errors.ModelValidationError;
 
 import java.util.List;
 

@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
-import uk.gov.hmcts.reform.sendletter.domain.LetterStatus;
-import uk.gov.hmcts.reform.sendletter.domain.SendLetterResponse;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
-import uk.gov.hmcts.reform.sendletter.model.Letter;
-import uk.gov.hmcts.reform.sendletter.model.LetterPrintedAtPatch;
-import uk.gov.hmcts.reform.sendletter.model.LetterSentToPrintAtPatch;
+import uk.gov.hmcts.reform.sendletter.model.in.Letter;
+import uk.gov.hmcts.reform.sendletter.model.in.LetterPrintedAtPatch;
+import uk.gov.hmcts.reform.sendletter.model.in.LetterSentToPrintAtPatch;
+import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
+import uk.gov.hmcts.reform.sendletter.model.out.SendLetterResponse;
 import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 

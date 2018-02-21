@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.sendletter.model.errors;
+package uk.gov.hmcts.reform.sendletter.model.out.errors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
