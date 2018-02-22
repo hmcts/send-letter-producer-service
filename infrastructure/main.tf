@@ -6,7 +6,7 @@ provider "vault" {
 
 # Make sure the resource group exists
 resource "azurerm_resource_group" "rg" {
-  name     = "${var.product}-producer-${var.env}"
+  name     = "${var.product}-${var.microservice}-${var.env}"
   location = "${var.location_app}"
 }
 
@@ -46,7 +46,7 @@ module "db" {
 
 module "send-letter-producer-service" {
   source              = "git@github.com:contino/moj-module-webapp?ref=master"
-  product             = "${var.product}-producer"
+  product             = "${var.product}-${var.microservice}"
   location            = "${var.location_app}"
   env                 = "${var.env}"
   ilbIp               = "${var.ilbIp}"
@@ -68,7 +68,7 @@ module "send-letter-producer-service" {
 
 # save the app's URL to vault
 resource "vault_generic_secret" "producer_url" {
-  path = "secret/${var.env}/cc/send-letter/producer-url"
+  path = "secret/${var.env}/cc/send-letter/${var.microservice}-url"
 
   data_json = <<EOT
     {
@@ -76,3 +76,46 @@ resource "vault_generic_secret" "producer_url" {
     }
     EOT
 }
+
+# region save DB details to Azure Key Vault
+module "key-vault" {
+  source              = "git@github.com:contino/moj-module-key-vault?ref=master"
+  product             = "${var.product}"
+  env                 = "${var.env}"
+  tenant_id           = "${var.tenant_id}"
+  object_id           = "${var.jenkins_AAD_objectId}"
+  resource_group_name = "${azurerm_resource_group.rg.name}"
+  # dcd_cc-dev group object ID
+  product_group_object_id = "38f9dea6-e861-4a50-9e73-21e64f563537"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-USER" {
+  name      = "${var.microservice}-POSTGRES-USER"
+  value     = "${module.db.user_name}"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
+  name      = "${var.microservice}-POSTGRES-PASS"
+  value     = "${module.db.postgresql_password}"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
+  name      = "${var.microservice}-POSTGRES-HOST"
+  value     = "${module.db.host_name}"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
+  name      = "${var.microservice}-POSTGRES-PORT"
+  value     = "${module.db.postgresql_listen_port}"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
+  name      = "${var.microservice}-POSTGRES-DATABASE"
+  value     = "${module.db.postgresql_database}"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+# endregion
