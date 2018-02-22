@@ -26,7 +26,7 @@ module "servicebus-queue" {
 
 # save the queue's "listen" connection string to vault
 resource "vault_generic_secret" "servicebus-listen-conn-string" {
-  path = "secret/${var.env}/cc/send-letter/servicebus-listen-conn-string"
+  path = "secret/${var.vault_section}/cc/send-letter/servicebus-listen-conn-string"
 
   data_json = <<EOT
     {
@@ -68,7 +68,7 @@ module "send-letter-producer-service" {
 
 # save the app's URL to vault
 resource "vault_generic_secret" "producer_url" {
-  path = "secret/${var.env}/cc/send-letter/${var.microservice}-url"
+  path = "secret/${var.vault_section}/cc/send-letter/${var.microservice}-url"
 
   data_json = <<EOT
     {
