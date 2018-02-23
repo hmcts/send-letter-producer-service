@@ -3,8 +3,8 @@
 @Library("Infrastructure")
 
 def type = "java"
-def product = "send-letter-producer-service"
-def component = "api"
+def product = "send-letter"
+def component = "producer"
 
 def channel = '#platform-engineering'
 
