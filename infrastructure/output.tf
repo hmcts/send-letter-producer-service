@@ -5,3 +5,7 @@ output "vaultUri" {
 output "vaultName" {
   value = "${module.key-vault.key_vault_name}"
 }
+
+output "microserviceName" {
+  value = "${var.microservice}"
+}
