@@ -34,6 +34,15 @@ sourceSets {
     }
     resources.srcDir file('src/functionalTest/resources')
   }
+
+  smokeTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/smokeTest/java')
+    }
+    resources.srcDir file('src/smokeTest/resources')
+  }
 }
 
 compileJava {
@@ -48,12 +57,22 @@ compileFunctionalTestJava {
   options.compilerArgs << "-Xlint:unchecked"
 }
 
+compileSmokeTestJava {
+  options.compilerArgs << "-Xlint:unchecked"
+}
+
 task functionalTest(type: Test) {
   description = "Runs Functional Tests"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
 
   environment("APPLICATION_INSIGHTS_IKEY", "some-key")
+}
+
+task smoke(type: Test) {
+  description = "Runs Smoke Tests"
+  testClassesDirs = sourceSets.smokeTest.output.classesDirs
+  classpath = sourceSets.smokeTest.runtimeClasspath
 }
 
 checkstyle {
@@ -66,7 +85,7 @@ checkstyle {
 pmd {
   toolVersion = "5.8.1"
   ignoreFailures = true
-  sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest]
+  sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.smokeTest]
   reportsDir = file("$project.buildDir/reports/pmd")
   ruleSetFiles = files("config/pmd/ruleset.xml")
 }
@@ -173,6 +192,10 @@ dependencies {
   functionalTestCompile sourceSets.main.runtimeClasspath
   functionalTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
   functionalTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.6.0'
+
+  smokeTestCompile sourceSets.main.runtimeClasspath
+  smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
+  smokeTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
 }
 
 jar {
