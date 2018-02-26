@@ -66,7 +66,7 @@ task functionalTest(type: Test) {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
 
-  environment("APPLICATION_INSIGHTS_IKEY", "some-key")
+  environment("APPLICATION_INSIGHTS_IKEY", "test-key")
 }
 
 task smoke(type: Test) {
