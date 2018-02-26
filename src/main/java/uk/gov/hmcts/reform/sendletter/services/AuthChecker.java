@@ -18,7 +18,7 @@ public class AuthChecker {
 
     public void assertCanUpdateLetter(String serviceName) {
         if (!Objects.equals(serviceName, statusUpdaterService)) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Service " + serviceName + " does not have permissions to update letters");
         }
     }
 }

@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.sendletter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +23,18 @@ import uk.gov.hmcts.reform.sendletter.model.out.errors.ModelValidationError;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.status;
 
 @ControllerAdvice
 public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ResponseExceptionHandler.class);
 
     @InitBinder
     protected void activateDirectFieldAccess(DataBinder dataBinder) {
@@ -51,36 +60,37 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    protected ResponseEntity<Void> handleInvalidTokenException() {
-        return status(HttpStatus.UNAUTHORIZED).build();
+    protected ResponseEntity<Void> handleInvalidTokenException(InvalidTokenException exc) {
+        log.warn(exc.getMessage(), exc);
+        return status(UNAUTHORIZED).build();
     }
 
     @ExceptionHandler(LetterNotFoundException.class)
-    protected ResponseEntity<Void> handleLetterNotFoundException() {
-        return status(HttpStatus.NOT_FOUND).build();
+    protected ResponseEntity<Void> handleLetterNotFoundException(LetterNotFoundException exc) {
+        log.warn(exc.getMessage(), exc);
+        return status(NOT_FOUND).build();
     }
 
     @ExceptionHandler(ConnectionException.class)
-    protected ResponseEntity<String> handleServiceBusException() {
-        return status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Exception occured while communicating with service bus");
+    protected ResponseEntity<String> handleServiceBusException(ConnectionException exc) {
+        log.error(exc.getMessage(), exc);
+        return status(INTERNAL_SERVER_ERROR).body("Exception occured while communicating with service bus");
     }
 
     @ExceptionHandler(JsonProcessingException.class)
     protected ResponseEntity<String> handleJsonProcessingException() {
-        return status(HttpStatus.BAD_REQUEST)
-            .body("Exception occured while parsing letter contents");
+        return status(BAD_REQUEST).body("Exception occured while parsing letter contents");
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    protected ResponseEntity<String> handleUnauthorizedException() {
-        return status(HttpStatus.FORBIDDEN).build();
+    protected ResponseEntity<String> handleUnauthorizedException(UnauthorizedException exc) {
+        log.warn(exc.getMessage(), exc);
+        return status(FORBIDDEN).build();
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<Void> handleInternalException() {
-        return status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    protected ResponseEntity<Void> handleInternalException(Exception exc) {
+        log.error(exc.getMessage(), exc);
+        return status(INTERNAL_SERVER_ERROR).build();
     }
-
-
 }
