@@ -61,8 +61,7 @@ compileSmokeTestJava {
   options.compilerArgs << "-Xlint:unchecked"
 }
 
-task functionalTest(type: Test) {
-  description = "Runs Functional Tests"
+task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
 
@@ -91,14 +90,14 @@ pmd {
 }
 
 jacocoTestReport {
-  executionData(test, functionalTest)
+  executionData(test, functional)
   reports {
     xml.enabled = true
     csv.enabled = false
   }
 }
 
-project.tasks['sonarqube'].dependsOn test, functionalTest
+project.tasks['sonarqube'].dependsOn test, functional
 sonarqube {
   properties {
     property "sonar.projectName", "Reform :: Send Letter Producer"
@@ -207,9 +206,4 @@ task migratePostgresDatabase(type: org.flywaydb.gradle.task.FlywayMigrateTask) {
   if (project.hasProperty("dburl")) {
     url = "jdbc:postgresql://${dburl}"
   }
-}
-
-task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
-  testClassesDirs = sourceSets.functionalTest.output.classesDirs
-  classpath = sourceSets.functionalTest.runtimeClasspath
 }
