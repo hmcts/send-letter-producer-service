@@ -30,6 +30,7 @@ public class UnauthorisedSmokeTest extends SmokeTestSuite {
     @Test
     public void must_have_authorisation_header_for_all_endpoints() {
         RequestSpecification specification = RestAssured.given()
+            .relaxedHTTPSValidation()
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .when();
         int badRequest = HttpStatus.BAD_REQUEST.value();
@@ -44,6 +45,7 @@ public class UnauthorisedSmokeTest extends SmokeTestSuite {
     @Test
     public void should_not_authorise_with_bad_authorisation_token() {
         RequestSpecification specification = RestAssured.given()
+            .relaxedHTTPSValidation()
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .header(new Header("ServiceAuthorization", "invalid token"))
             .when();
