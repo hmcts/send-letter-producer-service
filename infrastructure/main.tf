@@ -51,6 +51,7 @@ module "send-letter-producer-service" {
   env                 = "${var.env}"
   ilbIp               = "${var.ilbIp}"
   resource_group_name = "${azurerm_resource_group.rg.name}"
+  subscription        = "${var.subscription}"
 
   app_settings = {
     S2S_URL                       = "http://betadevbccidams2slb.reform.hmcts.net:80"
