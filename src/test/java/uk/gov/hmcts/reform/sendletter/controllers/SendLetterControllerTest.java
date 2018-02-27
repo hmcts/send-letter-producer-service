@@ -110,12 +110,12 @@ public class SendLetterControllerTest {
     }
 
     @Test
-    public void should_return_json_processing_exception_when_service_fails_to_serialize_letter() throws Exception {
+    public void should_return_400_bad_request_when_service_fails_to_serialize_letter() throws Exception {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
         willThrow(JsonProcessingException.class).given(letterService).send(any(Letter.class), anyString());
 
         sendLetter(readResource("letter.json"))
-            .andExpect(status().is4xxClientError())
+            .andExpect(status().isBadRequest())
             .andExpect(content().string(
                 containsString("Exception occured while parsing letter contents")));
 
@@ -127,7 +127,7 @@ public class SendLetterControllerTest {
 
     @Test
     public void should_return_400_client_error_when_invalid_letter_is_sent() throws Exception {
-        sendLetter("").andExpect(status().is4xxClientError());
+        sendLetter("").andExpect(status().isBadRequest());
 
         verify(letterService, never()).send(any(Letter.class), anyString());
     }
@@ -135,7 +135,7 @@ public class SendLetterControllerTest {
     @Test
     public void should_return_400_client_error_when_letter_is_sent_without_documents() throws Exception {
         sendLetter(readResource("letter-without-doc.json"))
-            .andExpect(status().is4xxClientError())
+            .andExpect(status().isBadRequest())
             .andExpect(content()
                 .json("{\"errors\":[{\"field_name\":\"documents\",\"message\":\"size must be between 1 and 10\"}]}"));
 
@@ -145,7 +145,7 @@ public class SendLetterControllerTest {
     @Test
     public void should_return_400_client_error_when_letter_is_sent_without_type() throws Exception {
         sendLetter(readResource("letter-without-type.json"))
-            .andExpect(status().is4xxClientError())
+            .andExpect(status().isBadRequest())
             .andExpect(content()
                 .json("{\"errors\":[{\"field_name\":\"type\",\"message\":\"may not be empty\"}]}"));
 
@@ -155,7 +155,7 @@ public class SendLetterControllerTest {
     @Test
     public void should_return_400_client_error_when_letter_is_sent_without_template_in_document() throws Exception {
         sendLetter(readResource("letter-without-template.json"))
-            .andExpect(status().is4xxClientError())
+            .andExpect(status().isBadRequest())
             .andExpect(content()
                 .json("{\"errors\":[{\"field_name\":\"documents[0].template\",\"message\":\"may not be empty\"}]}"));
 
@@ -166,7 +166,7 @@ public class SendLetterControllerTest {
     public void should_return_400_client_error_when_letter_is_sent_without_template_values_in_document()
         throws Exception {
         sendLetter(readResource("letter-without-template-values.json"))
-            .andExpect(status().is4xxClientError())
+            .andExpect(status().isBadRequest())
             .andExpect(content()
                 .json("{\"errors\":[{\"field_name\":\"documents[0].values\",\"message\":\"may not be empty\"}]}"));
 
@@ -177,7 +177,7 @@ public class SendLetterControllerTest {
     public void should_return_400_client_error_when_letter_is_with_more_than_10_documents()
         throws Exception {
         sendLetter(readResource("letter-with-multiple-docs.json"))
-            .andExpect(status().is4xxClientError())
+            .andExpect(status().isBadRequest())
             .andExpect(content()
                 .json("{\"errors\":[{\"field_name\":\"documents\",\"message\":\"size must be between 1 and 10\"}]}"));
 
