@@ -102,7 +102,8 @@ sonarqube {
   properties {
     property "sonar.projectName", "Reform :: Send Letter Producer"
     property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
-    property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/functionalTest.exec"
+    property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/functional.exec"
+    property 'sonar.coverage.exclusions', "**/src/main/java/uk/gov/hmcts/reform/sendletter/config/**"
   }
 }
 
