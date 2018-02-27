@@ -1,5 +1,10 @@
 language: java
 
+addons:
+  apt:
+    packages:
+      - libecpg-dev
+
 services:
   - docker
 
@@ -9,15 +14,18 @@ before_cache:
 
 cache:
   directories:
+  - $HOME/.cache/pip/
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
 
 before_install:
+  - sudo pip install pgsanity
   - curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
   - sudo apt-get install jq
   - wget -O ./codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
 
 script:
+  - pgsanity --add-semicolon src/main/resources/db/migration/*.sql
   - ./gradlew test
   - ./gradlew functional
 
