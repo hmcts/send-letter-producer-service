@@ -16,14 +16,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.model.in.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.in.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.model.out.SendLetterResponse;
-import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
+import uk.gov.hmcts.reform.sendletter.services.AuthService;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import java.util.UUID;
@@ -41,17 +40,14 @@ import static org.springframework.http.ResponseEntity.ok;
 public class SendLetterController {
 
     private final LetterService letterService;
-    private final AuthTokenValidator tokenValidator;
-    private final AuthChecker authChecker;
+    private final AuthService authService;
 
     public SendLetterController(
         LetterService letterService,
-        AuthTokenValidator tokenValidator,
-        AuthChecker authChecker
+        AuthService authService
     ) {
         this.letterService = letterService;
-        this.tokenValidator = tokenValidator;
-        this.authChecker = authChecker;
+        this.authService = authService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,12 +56,12 @@ public class SendLetterController {
         @ApiResponse(code = 200, response = SendLetterResponse.class, message = "Successfully sent letter")
     })
     public ResponseEntity<SendLetterResponse> sendLetter(
-        @RequestHeader("ServiceAuthorization") String serviceAuthHeader,
+        @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader,
         @ApiParam(value = "Letter consisting of documents and type", required = true)
         @Valid @RequestBody Letter letter
     ) throws JsonProcessingException {
 
-        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
+        String serviceName = authService.authenticate(serviceAuthHeader);
         UUID letterId = letterService.send(letter, serviceName);
 
         return ok().body(new SendLetterResponse(letterId));
@@ -80,9 +76,9 @@ public class SendLetterController {
     })
     public ResponseEntity<LetterStatus> getLetterStatus(
         @PathVariable String id,
-        @RequestHeader("ServiceAuthorization") String serviceAuthHeader
+        @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader
     ) {
-        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
+        String serviceName = authService.authenticate(serviceAuthHeader);
         LetterStatus letterStatus = letterService.getStatus(getLetterIdFromString(id), serviceName);
 
         return ok(letterStatus);
@@ -93,10 +89,10 @@ public class SendLetterController {
     public ResponseEntity<Void> updateSentToPrint(
         @PathVariable("id") String id,
         @RequestBody LetterSentToPrintAtPatch patch,
-        @RequestHeader("ServiceAuthorization") String serviceAuthHeader
+        @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader
     ) {
-        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
-        authChecker.assertCanUpdateLetter(serviceName);
+        String serviceName = authService.authenticate(serviceAuthHeader);
+        authService.assertCanUpdateLetter(serviceName);
         letterService.updateSentToPrintAt(getLetterIdFromString(id), patch);
 
         return noContent().build();
@@ -107,10 +103,10 @@ public class SendLetterController {
     public ResponseEntity<Void> updatePrintedAt(
         @PathVariable("id") String id,
         @RequestBody LetterPrintedAtPatch patch,
-        @RequestHeader("ServiceAuthorization") String serviceAuthHeader
+        @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader
     ) {
-        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
-        authChecker.assertCanUpdateLetter(serviceName);
+        String serviceName = authService.authenticate(serviceAuthHeader);
+        authService.assertCanUpdateLetter(serviceName);
         letterService.updatePrintedAt(getLetterIdFromString(id), patch);
 
         return noContent().build();
@@ -120,10 +116,10 @@ public class SendLetterController {
     @ApiOperation(value = "Update failed status when letter was sent to dead letter queue")
     public ResponseEntity<Void> updateFailedStatus(
         @PathVariable("id") String id,
-        @RequestHeader("ServiceAuthorization") String serviceAuthHeader
+        @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader
     ) {
-        String serviceName = tokenValidator.getServiceName(serviceAuthHeader);
-        authChecker.assertCanUpdateLetter(serviceName);
+        String serviceName = authService.authenticate(serviceAuthHeader);
+        authService.assertCanUpdateLetter(serviceName);
         letterService.updateIsFailed(getLetterIdFromString(id));
 
         return noContent().build();

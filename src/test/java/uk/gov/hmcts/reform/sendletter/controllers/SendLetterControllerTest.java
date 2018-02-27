@@ -14,10 +14,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.exception.ConnectionException;
+import uk.gov.hmcts.reform.sendletter.exception.UnauthenticatedException;
 import uk.gov.hmcts.reform.sendletter.model.in.Letter;
-import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
+import uk.gov.hmcts.reform.sendletter.services.AuthService;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
 import java.io.IOException;
@@ -44,29 +44,28 @@ public class SendLetterControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private LetterService letterService;
-    @MockBean private AuthTokenValidator tokenValidator;
-    @MockBean private AuthChecker authChecker;
+    @MockBean private AuthService authService;
 
 
     @Test
     public void should_return_message_id_when_letter_is_successfully_sent() throws Exception {
         UUID letterId = UUID.randomUUID();
 
-        given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
+        given(authService.authenticate("auth-header-value")).willReturn("service-name");
         given(letterService.send(any(Letter.class), anyString())).willReturn(letterId);
 
         sendLetter(readResource("letter.json"))
             .andExpect(status().isOk())
             .andExpect(content().json("{\"letter_id\":" + letterId + "}"));
 
-        verify(tokenValidator).getServiceName("auth-header-value");
+        verify(authService).authenticate("auth-header-value");
         verify(letterService).send(any(Letter.class), eq("service-name"));
-        verifyNoMoreInteractions(tokenValidator, letterService);
+        verifyNoMoreInteractions(authService, letterService);
     }
 
     @Test
     public void should_return_connection_exception_when_service_fails_due_to_service_bus() throws Exception {
-        given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
+        given(authService.authenticate("auth-header-value")).willReturn("service-name");
         given(letterService.send(any(Letter.class), anyString()))
             .willThrow(
                 new ConnectionException("Unable to connect to Azure service bus",
@@ -81,14 +80,14 @@ public class SendLetterControllerTest {
         assertThat(mvcResult.getResolvedException().getMessage()).isEqualTo("Unable to connect to Azure service bus");
         assertThat(mvcResult.getResolvedException().getCause()).isInstanceOf(ServiceBusException.class);
 
-        verify(tokenValidator).getServiceName("auth-header-value");
+        verify(authService).authenticate("auth-header-value");
         verify(letterService).send(any(Letter.class), anyString());
-        verifyNoMoreInteractions(tokenValidator, letterService);
+        verifyNoMoreInteractions(authService, letterService);
     }
 
     @Test
     public void should_return_connection_exception_when_service_fails_due_to_thread_interruption() throws Exception {
-        given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
+        given(authService.authenticate("auth-header-value")).willReturn("service-name");
         given(letterService.send(any(Letter.class), anyString()))
             .willThrow(
                 new ConnectionException("Unable to connect to Azure service bus",
@@ -104,14 +103,14 @@ public class SendLetterControllerTest {
         assertThat(mvcResult.getResolvedException().getCause()).isInstanceOf(InterruptedException.class);
 
 
-        verify(tokenValidator).getServiceName("auth-header-value");
+        verify(authService).authenticate("auth-header-value");
         verify(letterService).send(any(Letter.class), anyString());
-        verifyNoMoreInteractions(tokenValidator, letterService);
+        verifyNoMoreInteractions(authService, letterService);
     }
 
     @Test
     public void should_return_400_bad_request_when_service_fails_to_serialize_letter() throws Exception {
-        given(tokenValidator.getServiceName("auth-header-value")).willReturn("service-name");
+        given(authService.authenticate("auth-header-value")).willReturn("service-name");
         willThrow(JsonProcessingException.class).given(letterService).send(any(Letter.class), anyString());
 
         sendLetter(readResource("letter.json"))
@@ -120,8 +119,8 @@ public class SendLetterControllerTest {
                 containsString("Exception occured while parsing letter contents")));
 
 
-        verify(tokenValidator).getServiceName("auth-header-value");
-        verifyNoMoreInteractions(tokenValidator);
+        verify(authService).authenticate("auth-header-value");
+        verifyNoMoreInteractions(authService);
 
     }
 
@@ -184,11 +183,28 @@ public class SendLetterControllerTest {
         verify(letterService, never()).send(any(Letter.class), anyString());
     }
 
+    @Test
+    public void should_return_401_if_service_auth_header_is_missing() throws Exception {
+        given(authService.authenticate(null)).willThrow(new UnauthenticatedException("Hello"));
+
+        MvcResult result = sendLetterWithoutAuthHeader(readResource("letter.json")).andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(401);
+    }
+
     private ResultActions sendLetter(String json) throws Exception {
         return mockMvc.perform(
             post("/letters")
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .header("ServiceAuthorization", "auth-header-value")
+                .content(json)
+        );
+    }
+
+    private ResultActions sendLetterWithoutAuthHeader(String json) throws Exception {
+        return mockMvc.perform(
+            post("/letters")
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .content(json)
         );
     }

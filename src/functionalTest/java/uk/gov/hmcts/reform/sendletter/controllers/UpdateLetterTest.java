@@ -25,7 +25,7 @@ import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.sendletter.exception.LetterNotFoundException;
 import uk.gov.hmcts.reform.sendletter.exception.UnauthorizedException;
 import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
-import uk.gov.hmcts.reform.sendletter.services.AuthChecker;
+import uk.gov.hmcts.reform.sendletter.services.AuthService;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -54,7 +54,7 @@ public class UpdateLetterTest {
     private IQueueClient queueClient;
 
     @SpyBean
-    private AuthChecker authChecker;
+    private AuthService authService;
 
     @MockBean
     private AuthTokenValidator tokenValidator;
@@ -79,7 +79,7 @@ public class UpdateLetterTest {
         update(letterId + "/is-failed")
             .andExpect(status().is(204));
 
-        verify(authChecker).assertCanUpdateLetter("sendletterconsumer");
+        verify(authService).assertCanUpdateLetter("sendletterconsumer");
     }
 
     @Test
@@ -96,7 +96,7 @@ public class UpdateLetterTest {
         assertThat(mvcResult.getResolvedException())
             .isExactlyInstanceOf(LetterNotFoundException.class);
 
-        verify(authChecker).assertCanUpdateLetter("sendletterconsumer");
+        verify(authService).assertCanUpdateLetter("sendletterconsumer");
     }
 
     @Test
@@ -112,7 +112,7 @@ public class UpdateLetterTest {
         assertThat(mvcResult.getResolvedException())
             .isExactlyInstanceOf(UnauthorizedException.class);
 
-        verify(authChecker).assertCanUpdateLetter("some-test-value");
+        verify(authService).assertCanUpdateLetter("some-test-value");
     }
 
 
