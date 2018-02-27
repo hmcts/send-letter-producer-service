@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.model.in.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.in.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
+import uk.gov.hmcts.reform.sendletter.queue.model.QueueLetter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -149,10 +150,18 @@ public class LetterService {
         }
     }
 
-    private Message createQueueMessage(DbLetter letter, String messageId)
-        throws JsonProcessingException {
+    private Message createQueueMessage(DbLetter dbLetter, String messageId) throws JsonProcessingException {
 
-        Message message = new Message(objectMapper.writeValueAsBytes(letter));
+        Message message = new Message(
+            objectMapper.writeValueAsBytes(
+                new QueueLetter(
+                    dbLetter.id,
+                    dbLetter.documents,
+                    dbLetter.type,
+                    dbLetter.service
+                )
+            )
+        );
 
         message.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         message.setMessageId(messageId);
