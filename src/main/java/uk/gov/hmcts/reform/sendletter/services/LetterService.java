@@ -57,7 +57,7 @@ public class LetterService {
         this.letterRepository = letterRepository;
     }
 
-    public LetterStatus getStatus(UUID id, String serviceName) throws LetterNotFoundException {
+    public LetterStatus getStatus(UUID id, String serviceName) {
         return letterRepository
             .getLetterStatus(id, serviceName)
             .orElseThrow(() -> new LetterNotFoundException(id));

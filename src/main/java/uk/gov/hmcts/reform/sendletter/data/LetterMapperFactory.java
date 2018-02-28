@@ -10,10 +10,13 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-@SuppressWarnings("HideUtilityClassConstructor")
 final class LetterMapperFactory {
 
     public static final RowMapper<LetterStatus> LETTER_STATUS_MAPPER = new LetterStatusMapper();
+
+    private LetterMapperFactory() {
+        // utility class constructor
+    }
 
     private static final class LetterStatusMapper implements RowMapper<LetterStatus> {
 
