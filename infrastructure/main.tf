@@ -67,17 +67,6 @@ module "send-letter-producer-service" {
   }
 }
 
-# save the app's URL to vault
-resource "vault_generic_secret" "producer_url" {
-  path = "secret/${var.vault_section}/cc/send-letter/${var.microservice}-url"
-
-  data_json = <<EOT
-    {
-      "value": "${module.send-letter-producer-service.url}"
-    }
-    EOT
-}
-
 # region save DB details to Azure Key Vault
 module "key-vault" {
   source              = "git@github.com:contino/moj-module-key-vault?ref=master"
