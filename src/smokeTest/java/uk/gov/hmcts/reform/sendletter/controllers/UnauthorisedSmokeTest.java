@@ -33,13 +33,13 @@ public class UnauthorisedSmokeTest extends SmokeTestSuite {
             .relaxedHTTPSValidation()
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .when();
-        int badRequest = HttpStatus.BAD_REQUEST.value();
+        int unauthorised = HttpStatus.UNAUTHORIZED.value();
 
-        specification.get("/letters/" + LETTER_ID).then().statusCode(badRequest);
-        specification.body(createLetterBody).post("/letters").then().statusCode(badRequest);
-        specification.put("/letters/" + LETTER_ID + "/is-failed").then().statusCode(badRequest);
-        specification.put("/letters/" + LETTER_ID + "/sent-to-print-at").then().statusCode(badRequest);
-        specification.put("/letters/" + LETTER_ID + "/printed-at").then().statusCode(badRequest);
+        specification.get("/letters/" + LETTER_ID).then().statusCode(unauthorised);
+        specification.body(createLetterBody).post("/letters").then().statusCode(unauthorised);
+        specification.put("/letters/" + LETTER_ID + "/is-failed").then().statusCode(unauthorised);
+        specification.put("/letters/" + LETTER_ID + "/sent-to-print-at").then().statusCode(unauthorised);
+        specification.put("/letters/" + LETTER_ID + "/printed-at").then().statusCode(unauthorised);
     }
 
     @Test
