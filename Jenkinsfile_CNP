@@ -6,7 +6,7 @@ def type = "java"
 def product = "send-letter"
 def component = "producer"
 
-def channel = '#platform-engineering'
+def channel = '#rpe-build-notices'
 
 withPipeline(type , product, component) {
     enableSlackNotifications(channel)
