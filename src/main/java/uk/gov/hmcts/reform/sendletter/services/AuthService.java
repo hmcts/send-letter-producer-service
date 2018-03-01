@@ -12,21 +12,23 @@ import java.util.Objects;
 public class AuthService {
 
     /** Name of the service that can update letter status. **/
-    private final String statusUpdaterService;
+    private final String statusAccessorService;
     private final AuthTokenValidator authTokenValidator;
 
     public AuthService(
-        @Value("${status-update-service-name}") String statusUpdaterService,
+        @Value("${status-update-service-name}") String statusAccessorService,
         AuthTokenValidator authTokenValidator
     ) {
-        this.statusUpdaterService = statusUpdaterService;
+        this.statusAccessorService = statusAccessorService;
         this.authTokenValidator = authTokenValidator;
     }
 
     public void assertCanUpdateLetter(String serviceName) {
-        if (!Objects.equals(serviceName, statusUpdaterService)) {
-            throw new UnauthorizedException("Service " + serviceName + " does not have permissions to update letters");
-        }
+        assertAccessorCondition(serviceName, "update");
+    }
+
+    public void assertCanCheckStatus(String serviceName) {
+        assertAccessorCondition(serviceName, "check");
     }
 
     public String authenticate(String authHeader) {
@@ -34,6 +36,14 @@ public class AuthService {
             throw new UnauthenticatedException("Missing ServiceAuthorization header");
         } else {
             return authTokenValidator.getServiceName(authHeader);
+        }
+    }
+
+    private void assertAccessorCondition(String serviceName, String accessType) {
+        if (!Objects.equals(serviceName, statusAccessorService)) {
+            throw new UnauthorizedException(
+                "Service " + serviceName + " does not have permissions to " + accessType + " letters state"
+            );
         }
     }
 }

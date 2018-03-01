@@ -137,6 +137,10 @@ public class LetterService {
         }
     }
 
+    public void checkPrintState() {
+        // TODO
+    }
+
     private void logMessageSendCompletion(Instant started, String messageId, Throwable exception) {
         Duration tookSending = Duration.between(started, Instant.now());
         boolean hasFailed = exception != null;
