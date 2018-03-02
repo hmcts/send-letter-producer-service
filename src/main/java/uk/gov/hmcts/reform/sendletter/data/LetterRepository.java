@@ -36,12 +36,15 @@ public class LetterRepository {
 
     public void save(DbLetter letter, Instant creationTime, String messageId) throws JsonProcessingException {
         jdbcTemplate.update(
-            "INSERT INTO letters (id, message_id, service, created_at, sent_to_print_at, printed_at, additional_data)"
-                + "VALUES (:id, :messageId, :service, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON)",
+            "INSERT INTO letters "
+                + "(id, message_id, service, type, created_at, sent_to_print_at, printed_at, additional_data) "
+                + "VALUES "
+                + "(:id, :messageId, :service, :type, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON)",
             new MapSqlParameterSource()
                 .addValue("id", letter.id)
                 .addValue("messageId", messageId)
                 .addValue("service", letter.service)
+                .addValue("type", letter.type)
                 .addValue("createdAt", from(creationTime))
                 .addValue("additionalData", convertToJson(letter.additionalData))
                 .addValue("sentToPrintAt", null)
