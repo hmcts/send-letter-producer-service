@@ -1,12 +1,16 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.sendletter.services.AuthService;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
@@ -34,6 +38,11 @@ public class ReportController {
 
     @PostMapping(path = "/print-status-check")
     @ApiOperation(value = "Execute action for print state")
+    @ApiResponses({
+        @ApiResponse(code = 401, message = ControllerResponseMessage.RESPONSE_401),
+        @ApiResponse(code = 403, message = ControllerResponseMessage.RESPONSE_403)
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> checkPrintState(
         @RequestHeader(name = "ServiceAuthorization", required = false) String serviceAuthHeader
     ) {
