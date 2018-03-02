@@ -54,7 +54,7 @@ module "send-letter-producer-service" {
   subscription        = "${var.subscription}"
 
   app_settings = {
-    S2S_URL                       = "http://betadevbccidams2slb.reform.hmcts.net:80"
+    S2S_URL                       = "${var.s2s_url}"
     SERVICE_BUS_CONNECTION_STRING = "${module.servicebus-queue.primary_send_connection_string}"
     LETTER_TRACKING_DB_HOST       = "${module.db.host_name}"
     LETTER_TRACKING_DB_PORT       = "${module.db.postgresql_listen_port}"
