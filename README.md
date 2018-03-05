@@ -4,6 +4,8 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2f78908ffd7f404da2c7d3c855809ac0)](https://www.codacy.com/app/HMCTS/send-letter-producer-service)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/2f78908ffd7f404da2c7d3c855809ac0)](https://www.codacy.com/app/HMCTS/send-letter-producer-service)
 
+![Diagram](/doc/arch/diagram.png)
+
 ## Building and deploying the application
 
 ### Building the application
