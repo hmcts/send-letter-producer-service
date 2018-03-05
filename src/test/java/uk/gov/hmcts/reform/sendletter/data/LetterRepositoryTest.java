@@ -15,12 +15,15 @@ import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
+import uk.gov.hmcts.reform.sendletter.model.out.NotPrintedLetter;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -145,5 +148,27 @@ public class LetterRepositoryTest {
         Optional<LetterStatus> result = letterRepository.getLetterStatus(UUID.randomUUID(), "some-service");
 
         assertThat(result.orElse(null)).isNull();
+    }
+
+    @Test
+    public void should_return_list_of_not_printed_letters() {
+        ZonedDateTime now = ZonedDateTime.now();
+        NotPrintedLetter letter = new NotPrintedLetter(
+            UUID.randomUUID(),
+            "some-message-id",
+            "some-service",
+            "some-type",
+            now,
+            now
+        );
+
+        given(jdbcTemplate.query(
+            anyString(),
+            eq(LetterMapperFactory.NOT_PRINTED_LETTER_MAPPER)
+        )).willReturn(Collections.singletonList(letter));
+
+        List<NotPrintedLetter> result = letterRepository.getStaleLetters();
+
+        assertThat(result).containsOnlyOnce(letter).hasSize(1);
     }
 }
