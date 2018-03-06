@@ -22,12 +22,14 @@ import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.model.in.LetterPrintedAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.in.LetterSentToPrintAtPatch;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
+import uk.gov.hmcts.reform.sendletter.model.out.NotPrintedLetter;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -44,6 +46,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -166,9 +169,9 @@ public class LetterServiceTest {
         verify(queueClientSupplier).get();
         verify(queueClient).send(any(Message.class));
 
-        failedCompletableFuture.thenRun(() -> {
-            verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(false), anyString());
-        });
+        failedCompletableFuture.thenRun(() ->
+            verify(insights).trackMessageAcknowledgement(any(Duration.class), eq(false), anyString())
+        );
         voidCompletableFuture.thenRun(() -> {
             verify(queueClient).closeAsync();
             verifyNoMoreInteractions(queueClientSupplier, queueClient, insights);
@@ -274,12 +277,12 @@ public class LetterServiceTest {
     public void update_should_throw_an_exception_if_no_letters_were_updated() {
         given(letterRepository.updateSentToPrintAt(any(), any())).willReturn(0);
 
-        Throwable exc = catchThrowable(() -> {
+        Throwable exc = catchThrowable(() ->
             service.updateSentToPrintAt(
                 UUID.randomUUID(),
                 new LetterSentToPrintAtPatch(LocalDateTime.now())
-            );
-        });
+            )
+        );
 
         assertThat(exc).isInstanceOf(LetterNotFoundException.class);
     }
@@ -301,12 +304,12 @@ public class LetterServiceTest {
     public void updatePrintedAt_should_throw_an_exception_if_no_letters_were_updated() {
         given(letterRepository.updatePrintedAt(any(), any())).willReturn(0);
 
-        Throwable exc = catchThrowable(() -> {
+        Throwable exc = catchThrowable(() ->
             service.updatePrintedAt(
                 UUID.randomUUID(),
                 new LetterPrintedAtPatch(LocalDateTime.now())
-            );
-        });
+            )
+        );
 
         assertThat(exc).isInstanceOf(LetterNotFoundException.class);
     }
@@ -328,9 +331,7 @@ public class LetterServiceTest {
     public void updateIsFailed_should_throw_an_exception_if_no_letters_were_updated() {
         given(letterRepository.updateIsFailed(any())).willReturn(0);
 
-        Throwable exc = catchThrowable(() -> {
-            service.updateIsFailed(UUID.randomUUID());
-        });
+        Throwable exc = catchThrowable(() -> service.updateIsFailed(UUID.randomUUID()));
 
         assertThat(exc).isInstanceOf(LetterNotFoundException.class);
     }
@@ -344,5 +345,47 @@ public class LetterServiceTest {
 
         // then
         verify(letterRepository).updateIsFailed(id);
+    }
+
+    @Test
+    public void should_record_each_letter_in_app_insights_respectively() {
+        // given all letters are printed
+        given(letterRepository.getStaleLetters()).willReturn(Collections.emptyList());
+
+        // when
+        service.checkPrintState();
+
+        // then TODO
+        // verify(insights, never()).trackNotPrintedLetter(any(NotPrintedLetter.class));
+
+        ZonedDateTime now = ZonedDateTime.now();
+        NotPrintedLetter letter = new NotPrintedLetter(
+            UUID.randomUUID(),
+            "some-message-id",
+            "some-service",
+            "some-type",
+            now,
+            now
+        );
+
+        // given one letter is not printed
+        reset(insights);
+        given(letterRepository.getStaleLetters()).willReturn(Collections.singletonList(letter));
+
+        // when
+        service.checkPrintState();
+
+        // then TODO
+        // verify(insights).trackNotPrintedLetter(any(NotPrintedLetter.class));
+
+        // given five letters are not printed :(
+        reset(insights);
+        given(letterRepository.getStaleLetters()).willReturn(Collections.nCopies(5, letter));
+
+        // when
+        service.checkPrintState();
+
+        // then TODO
+        // verify(insights, times(5)).trackNotPrintedLetter(any(NotPrintedLetter.class));
     }
 }

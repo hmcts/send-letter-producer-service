@@ -131,7 +131,7 @@ public class LetterRepository {
         return jdbcTemplate.query(
             "SELECT id, message_id, service, type, created_at, sent_to_print_at "
                 + "FROM letters "
-                + "WHERE is_failed = false"
+                + "WHERE NOT is_failed"
                 + "  AND printed_at IS NULL"
                 + "  AND sent_to_print_at IS NOT NULL"
                 + "  AND sent_to_print_at < (CURRENT_DATE - integer '1' + time '17:00')",

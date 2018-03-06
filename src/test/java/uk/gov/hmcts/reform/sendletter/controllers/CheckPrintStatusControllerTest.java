@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.hmcts.reform.sendletter.exception.UnauthenticatedException;
+import uk.gov.hmcts.reform.sendletter.exception.UnauthorizedException;
 import uk.gov.hmcts.reform.sendletter.services.AuthService;
 import uk.gov.hmcts.reform.sendletter.services.LetterService;
 
@@ -48,10 +49,10 @@ public class CheckPrintStatusControllerTest {
     }
 
     @Test
-    public void should_return_401_when_service_is_not_allowed_to_access_endpoint() throws Exception {
-        willThrow(UnauthenticatedException.class).given(authService).assertCanCheckStatus("service-name");
+    public void should_return_403_when_service_is_not_allowed_to_access_endpoint() throws Exception {
+        willThrow(UnauthorizedException.class).given(authService).assertCanCheckStatus("service-name");
 
-        printState().andExpect(status().isUnauthorized());
+        printState().andExpect(status().isForbidden());
     }
 
     @Test

@@ -139,6 +139,7 @@ public class LetterService {
 
     public void checkPrintState() {
         // TODO
+        letterRepository.getStaleLetters();
     }
 
     private void logMessageSendCompletion(Instant started, String messageId, Throwable exception) {
