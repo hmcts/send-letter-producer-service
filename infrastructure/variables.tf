@@ -28,11 +28,6 @@ variable "vault_section" {
   default = "dev"
 }
 
-variable s2s_url {
-  type = "string"
-  default = "http://betaDevBccidamS2SLB.reform.hmcts.net:80"
-}
-
 variable "ilbIp" {}
 
 variable "tenant_id" {}
