@@ -5,6 +5,7 @@ import com.google.common.io.Resources;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +31,7 @@ import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -51,6 +54,9 @@ public class SendLetterTest {
     @Autowired
     private MockMvc mvc;
 
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcTemplate;
+
     @MockBean
     private QueueClientSupplier queueClientSupplier;
 
@@ -62,6 +68,11 @@ public class SendLetterTest {
 
     @SpyBean
     private LetterRepository letterRepository;
+
+    @After
+    public void tearDown() {
+        jdbcTemplate.update("DELETE FROM letters", Collections.emptyMap());
+    }
 
     @Test
     public void should_return_200_when_single_letter_is_sent() throws Exception {
