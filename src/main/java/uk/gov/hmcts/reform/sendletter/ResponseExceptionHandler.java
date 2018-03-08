@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.sendletter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,6 +94,12 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<String> handleUnauthenticatedException(UnauthenticatedException exc) {
         log.warn(exc.getMessage(), exc);
         return status(UNAUTHORIZED).build();
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    protected ResponseEntity<Void> handlePostgresException(DuplicateKeyException exc) {
+        log.warn(exc.getMessage(), exc);
+        return status(BAD_REQUEST).build();
     }
 
     @ExceptionHandler(Exception.class)

@@ -78,6 +78,16 @@ public class SendLetterTest {
     }
 
     @Test
+    public void should_return_400_when_same_letter_is_sent_twice() throws Exception {
+        given(queueClientSupplier.get()).willReturn(queueClient);
+
+        String letter = readResource("letter.json");
+
+        send(letter).andExpect(status().isOk());
+        send(letter).andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_return_500_when_sending_message_has_failed() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
 
