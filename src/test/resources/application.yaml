@@ -2,7 +2,7 @@ spring:
   application:
     name: Send Letter Provider
   datasource:
-      url: jdbc:postgresql://localhost:5432/letter_tracking
+      url: jdbc:postgresql://localhost:5432/letter_tracking?stringtype=unspecified
       username: alex
       password:
   jackson:

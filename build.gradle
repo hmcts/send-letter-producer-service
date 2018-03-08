@@ -186,6 +186,7 @@ dependencies {
   compile group: 'com.microsoft.azure', name: 'azure-servicebus', version: '1.1.1'
 
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: springBootVersion
+  compile("org.springframework.boot:spring-boot-starter-data-jpa")
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
 
