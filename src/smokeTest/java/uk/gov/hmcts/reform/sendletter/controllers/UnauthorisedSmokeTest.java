@@ -8,10 +8,11 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.UUID;
+
+import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 
 public class UnauthorisedSmokeTest extends SmokeTestSuite {
 
@@ -20,9 +21,7 @@ public class UnauthorisedSmokeTest extends SmokeTestSuite {
     private String createLetterBody;
 
     @Before
-    @Override
     public void setup() throws IOException {
-        super.setup();
 
         createLetterBody = Resources.toString(Resources.getResource("letter.json"), Charsets.UTF_8);
     }
@@ -30,31 +29,31 @@ public class UnauthorisedSmokeTest extends SmokeTestSuite {
     @Test
     public void must_have_authorisation_header_for_all_endpoints() {
         RequestSpecification specification = RestAssured.given()
+            .baseUri(this.testUrl)
             .relaxedHTTPSValidation()
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .when();
-        int unauthorised = HttpStatus.UNAUTHORIZED.value();
 
-        specification.get("/letters/" + LETTER_ID).then().statusCode(unauthorised);
-        specification.body(createLetterBody).post("/letters").then().statusCode(unauthorised);
-        specification.put("/letters/" + LETTER_ID + "/is-failed").then().statusCode(unauthorised);
-        specification.put("/letters/" + LETTER_ID + "/sent-to-print-at").then().statusCode(unauthorised);
-        specification.put("/letters/" + LETTER_ID + "/printed-at").then().statusCode(unauthorised);
+        specification.get("/letters/" + LETTER_ID).then().statusCode(SC_UNAUTHORIZED);
+        specification.body(createLetterBody).post("/letters").then().statusCode(SC_UNAUTHORIZED);
+        specification.put("/letters/" + LETTER_ID + "/is-failed").then().statusCode(SC_UNAUTHORIZED);
+        specification.put("/letters/" + LETTER_ID + "/sent-to-print-at").then().statusCode(SC_UNAUTHORIZED);
+        specification.put("/letters/" + LETTER_ID + "/printed-at").then().statusCode(SC_UNAUTHORIZED);
     }
 
     @Test
     public void should_not_authorise_with_bad_authorisation_token() {
         RequestSpecification specification = RestAssured.given()
+            .baseUri(this.testUrl)
             .relaxedHTTPSValidation()
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .header(new Header("ServiceAuthorization", "invalid token"))
             .when();
-        int unauthorised = HttpStatus.UNAUTHORIZED.value();
 
-        specification.get("/letters/" + LETTER_ID).then().statusCode(unauthorised);
-        specification.body(createLetterBody).post("/letters").then().statusCode(unauthorised);
-        specification.put("/letters/" + LETTER_ID + "/is-failed").then().statusCode(unauthorised);
-        specification.put("/letters/" + LETTER_ID + "/sent-to-print-at").then().statusCode(unauthorised);
-        specification.put("/letters/" + LETTER_ID + "/printed-at").then().statusCode(unauthorised);
+        specification.get("/letters/" + LETTER_ID).then().statusCode(SC_UNAUTHORIZED);
+        specification.body(createLetterBody).post("/letters").then().statusCode(SC_UNAUTHORIZED);
+        specification.put("/letters/" + LETTER_ID + "/is-failed").then().statusCode(SC_UNAUTHORIZED);
+        specification.put("/letters/" + LETTER_ID + "/sent-to-print-at").then().statusCode(SC_UNAUTHORIZED);
+        specification.put("/letters/" + LETTER_ID + "/printed-at").then().statusCode(SC_UNAUTHORIZED);
     }
 }
