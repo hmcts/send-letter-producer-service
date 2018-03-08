@@ -109,3 +109,11 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   vault_uri = "${module.key-vault.key_vault_uri}"
 }
 # endregion
+
+# region smoke test config
+resource "azurerm_key_vault_secret" "smoke-test-s2s-url" {
+  name      = "smoke-test-s2s-url"
+  value     = "${var.s2s_url}"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+# endregion
