@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: Send Letter Provider
+  datasource:
+      url: jdbc:postgresql://localhost:5432/letter_tracking
+      username: alex
+      password:
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
