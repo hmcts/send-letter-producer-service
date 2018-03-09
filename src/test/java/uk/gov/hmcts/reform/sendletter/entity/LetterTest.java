@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sendletter.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javassist.tools.rmi.Sample;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,23 +10,19 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
 
-import javax.sql.DataSource;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 @RunWith(SpringRunner.class)
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class LetterTest {
 
@@ -52,7 +47,8 @@ public class LetterTest {
         // Save a letter using the existing repository code.
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         ObjectMapper objectMapper = new ObjectMapper();
-        uk.gov.hmcts.reform.sendletter.data.LetterRepository repo = new uk.gov.hmcts.reform.sendletter.data.LetterRepository(jdbcTemplate, objectMapper);
+        uk.gov.hmcts.reform.sendletter.data.LetterRepository repo =
+            new uk.gov.hmcts.reform.sendletter.data.LetterRepository(jdbcTemplate, objectMapper);
         DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "cmc", SampleData.letter());
         Instant instant = Instant.now();
         String messageId = UUID.randomUUID().toString();

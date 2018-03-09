@@ -1,22 +1,21 @@
 package uk.gov.hmcts.reform.sendletter.entity;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import org.postgresql.util.PGobject;
-import uk.gov.hmcts.reform.sendletter.model.in.Document;
-
-import javax.persistence.*;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-@Table(name="letters")
+@Table(name = "letters")
 public class Letter {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     public final String messageId;

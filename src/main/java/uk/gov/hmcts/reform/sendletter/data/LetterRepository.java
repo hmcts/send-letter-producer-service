@@ -42,7 +42,8 @@ public class LetterRepository {
             "INSERT INTO letters "
                 + "(id, message_id, service, type, created_at, sent_to_print_at, printed_at, additional_data, state) "
                 + "VALUES "
-                + "(:id, :messageId, :service, :type, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON, :state)",
+                + "(:id, :messageId, :service, :type, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON, "
+                + ":state)",
             new MapSqlParameterSource()
                 .addValue("id", letter.id)
                 .addValue("messageId", messageId)
