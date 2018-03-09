@@ -42,8 +42,11 @@ public class LetterTest {
         Letter l = new Letter("messageId", "service", "{}", "a type");
         repository.save(l);
         int count = (int) repository.count();
-        assertThat(count).isEqualTo(1);
+        List<Letter> letters = Lists.newArrayList(repository.findAll());
+        assertThat(letters.size()).isEqualTo(1);
+        assertThat(letters.get(0).state).isEqualTo(LetterState.Created);
     }
+
     @Test
     public void compatible_with_existing_records() throws JsonProcessingException {
         // Save a letter using the existing repository code.

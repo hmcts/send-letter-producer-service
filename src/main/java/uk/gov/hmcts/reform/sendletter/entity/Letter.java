@@ -24,6 +24,8 @@ public class Letter {
     public final String additionalData;
     public final Timestamp createdAt = Timestamp.from(Instant.now());
     public final String type;
+    @Enumerated(EnumType.STRING)
+    public final LetterState state = LetterState.Created;
 
     protected Letter() {
         messageId = null;

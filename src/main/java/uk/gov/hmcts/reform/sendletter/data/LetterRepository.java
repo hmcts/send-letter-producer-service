@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
+import uk.gov.hmcts.reform.sendletter.entity.LetterState;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.model.out.NotPrintedLetter;
 
@@ -39,14 +40,15 @@ public class LetterRepository {
     public void save(DbLetter letter, Instant creationTime, String messageId) throws JsonProcessingException {
         jdbcTemplate.update(
             "INSERT INTO letters "
-                + "(id, message_id, service, type, created_at, sent_to_print_at, printed_at, additional_data) "
+                + "(id, message_id, service, type, created_at, sent_to_print_at, printed_at, additional_data, state) "
                 + "VALUES "
-                + "(:id, :messageId, :service, :type, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON)",
+                + "(:id, :messageId, :service, :type, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON, :state)",
             new MapSqlParameterSource()
                 .addValue("id", letter.id)
                 .addValue("messageId", messageId)
                 .addValue("service", letter.service)
                 .addValue("type", letter.type)
+                .addValue("state", LetterState.Created.toString())
                 .addValue("createdAt", from(creationTime))
                 .addValue("additionalData", convertToJson(letter.additionalData))
                 .addValue("sentToPrintAt", null)
