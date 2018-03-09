@@ -24,6 +24,10 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 withPipeline(type , product, component) {
+    after('test') {
+      sh './gradlew integration'
+    }
+
     enableSlackNotifications(channel)
     enableDbMigration()
     loadVaultSecrets(secrets)
