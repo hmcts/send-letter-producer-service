@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.sendletter.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Resources;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +15,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.sql.DataSource;
 
@@ -64,5 +68,13 @@ public class LetterTest {
         assertThat(loaded.messageId).isEqualTo(messageId);
         assertThat(loaded.service).isEqualTo("cmc");
         assertThat(loaded.type).isEqualTo(dbLetter.type);
+    }
+
+    @Test
+    public void generates_pdf() throws IOException {
+        byte[] template = Resources.toByteArray(Resources.getResource("template.html"));
+        Map<String, Object> content = ImmutableMap.of("name", "John");
+        String result = Letter.generatePdf(template, content);
+        assertThat(result).isNotEmpty();
     }
 }

@@ -1,0 +1,18 @@
+<html>
+<head>
+  <title>{% block title %}My Website{% endblock %}</title>
+</head>
+<body>
+<div id="content">
+  {% block content %}
+  <h1> Home </h1>
+  <p> Welcome to my home page. My name is {{ name }}.</p>
+  {% endblock %}
+</div>
+<div id="footer">
+  {% block footer %}
+  Copyright 2014
+  {% endblock %}
+</div>
+</body>
+</html>
