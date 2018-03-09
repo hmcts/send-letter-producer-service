@@ -39,10 +39,12 @@ public class FtpClient {
     // region constructor
     public FtpClient(
         Supplier<SSHClient> sshClientSupplier,
-        FtpConfigProperties configProperties
+        FtpConfigProperties configProperties,
+        AppInsights insights
     ) {
         this.sshClientSupplier = sshClientSupplier;
         this.configProperties = configProperties;
+        this.insights = insights;
     }
     // endregion
 

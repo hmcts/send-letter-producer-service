@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.slc.config;
+package uk.gov.hmcts.reform.sendletter.config;
 
 import net.schmizz.sshj.SSHClient;
 import org.springframework.context.annotation.Bean;
