@@ -35,6 +35,15 @@ sourceSets {
     resources.srcDir file('src/functionalTest/resources')
   }
 
+  integrationTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/integrationTest/java')
+    }
+    resources.srcDir file('src/integrationTest/resources')
+  }
+
   smokeTest {
     java {
       compileClasspath += main.output
@@ -53,6 +62,10 @@ compileTestJava {
   options.compilerArgs << "-Xlint:unchecked"
 }
 
+compileIntegrationTestJava {
+  options.compilerArgs << "-Xlint:unchecked"
+}
+
 compileFunctionalTestJava {
   options.compilerArgs << "-Xlint:unchecked"
 }
@@ -61,11 +74,16 @@ compileSmokeTestJava {
   options.compilerArgs << "-Xlint:unchecked"
 }
 
+task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+
+  environment("APPLICATION_INSIGHTS_IKEY", "test-key")
+}
+
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
-
-  environment("APPLICATION_INSIGHTS_IKEY", "test-key")
 }
 
 task smoke(type: Test) {
@@ -84,25 +102,31 @@ checkstyle {
 pmd {
   toolVersion = "5.8.1"
   ignoreFailures = true
-  sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.smokeTest]
+  sourceSets = [
+    sourceSets.main,
+    sourceSets.test,
+    sourceSets.functionalTest,
+    sourceSets.integrationTest,
+    sourceSets.smokeTest
+  ]
   reportsDir = file("$project.buildDir/reports/pmd")
   ruleSetFiles = files("config/pmd/ruleset.xml")
 }
 
 jacocoTestReport {
-  executionData(test, functional)
+  executionData(test, integration)
   reports {
     xml.enabled = true
     csv.enabled = false
   }
 }
 
-project.tasks['sonarqube'].dependsOn test, functional
+project.tasks['sonarqube'].dependsOn test, functional, integration
 sonarqube {
   properties {
     property "sonar.projectName", "Reform :: Send Letter Producer"
     property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
-    property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/functional.exec"
+    property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/integration.exec"
     property 'sonar.coverage.exclusions', "**/src/main/java/uk/gov/hmcts/reform/sendletter/config/**"
   }
 }
@@ -189,9 +213,9 @@ dependencies {
 
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
 
-  functionalTestCompile sourceSets.main.runtimeClasspath
-  functionalTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
-  functionalTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.6.0'
+  integrationTestCompile sourceSets.main.runtimeClasspath
+  integrationTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+  integrationTestCompile group: 'org.testcontainers', name: 'postgresql', version: '1.6.0'
 
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
