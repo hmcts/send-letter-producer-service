@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.sendletter.SampleData;
 import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
+import uk.gov.hmcts.reform.slc.services.steps.getpdf.PdfCreator;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -76,7 +77,7 @@ public class LetterTest {
     public void generates_pdf() throws IOException {
         byte[] template = Resources.toByteArray(Resources.getResource("template.html"));
         Map<String, Object> content = ImmutableMap.of("name", "John");
-        byte[] result = Letter.generatePdf(template, content);
+        byte[] result = PdfCreator.generatePdf(template, content);
         assertThat(result).isNotEmpty();
     }
 }

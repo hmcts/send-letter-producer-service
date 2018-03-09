@@ -1,10 +1,7 @@
 package uk.gov.hmcts.reform.sendletter.entity;
 
-import uk.gov.hmcts.reform.pdf.generator.HTMLToPDFConverter;
-
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,9 +50,4 @@ public class Letter {
         this.pdf = pdf;
     }
 
-    private static HTMLToPDFConverter converter = new HTMLToPDFConverter();
-
-    public static synchronized byte[] generatePdf(byte[] template, Map<String, Object> content) {
-        return converter.convert(template, content);
-    }
 }
