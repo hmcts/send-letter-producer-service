@@ -68,14 +68,13 @@ public class GetLetterStatusTest {
         given(queueClientSupplier.get()).willReturn(queueClient);
 
         // and
-        UUID letterId = UUID.randomUUID();
         Letter letter = new Letter(Collections.emptyList(), "some-type", Collections.emptyMap());
-        DbLetter dbLetter = new DbLetter(letterId, "some-service", letter);
+        DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "some-service", letter);
         ZonedDateTime createdAt = ZonedDateTime.now(ZoneOffset.UTC);
         String messageId = MessageIdProvider.randomMessageId();
 
         // when
-        letterRepository.save(dbLetter, createdAt.toInstant(), messageId);
+        UUID letterId = letterRepository.save(dbLetter, createdAt.toInstant(), messageId);
 
         // then
         MvcResult result = getLetterStatus(letterId)

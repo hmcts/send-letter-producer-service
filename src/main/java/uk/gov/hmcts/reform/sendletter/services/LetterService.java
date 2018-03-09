@@ -70,17 +70,15 @@ public class LetterService {
         final String messageId = generateChecksum(letter);
         final UUID id = UUID.randomUUID();
 
-        log.info("Generated message: id = {} for letter with print queue id = {} and letter id = {} ",
-            messageId,
-            letter.type,
-            id);
+        log.info("Generated message: id = {} for letter with print queue id = {}", messageId, letter.type);
 
         DbLetter dbLetter = new DbLetter(id, serviceName, letter);
 
         //Save message details to db for reporting
-        letterRepository.save(dbLetter, Instant.now(), messageId);
+        UUID letterId = letterRepository.save(dbLetter, Instant.now(), messageId);
         placeLetterInQueue(dbLetter, messageId);
-        return id;
+
+        return letterId;
     }
 
     private void placeLetterInQueue(

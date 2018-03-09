@@ -48,6 +48,8 @@ public class LetterRepository {
     }
 
     public UUID save(DbLetter letter, Instant creationTime, String messageId) throws JsonProcessingException {
+        UUID letterId = UUID.randomUUID();
+
         return jdbcTemplate.execute(
             "WITH new_letter AS ("
                 + "  INSERT INTO letters AS l"
@@ -69,7 +71,7 @@ public class LetterRepository {
                 + "WHERE message_id = :messageId "
                 + "LIMIT 1",
             new MapSqlParameterSource()
-                .addValue("id", letter.id)
+                .addValue("id", letterId)
                 .addValue("messageId", messageId)
                 .addValue("service", letter.service)
                 .addValue("type", letter.type)
