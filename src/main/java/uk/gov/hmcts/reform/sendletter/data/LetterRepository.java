@@ -2,18 +2,22 @@ package uk.gov.hmcts.reform.sendletter.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
+import uk.gov.hmcts.reform.sendletter.exception.UnableToCreateLetterException;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.model.out.NotPrintedLetter;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,23 +29,45 @@ import static java.util.Objects.nonNull;
 @Repository
 public class LetterRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(LetterRepository.class);
-
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     private final ObjectMapper objectMapper;
 
-    public LetterRepository(NamedParameterJdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
+    private final String resubmissionIntervalSqlCondition;
+
+    public LetterRepository(
+        NamedParameterJdbcTemplate jdbcTemplate,
+        ObjectMapper objectMapper,
+        @Value("${letter-resubmission-interval-in-hours}") int resubmissionInterval
+    ) {
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
+        this.resubmissionIntervalSqlCondition = String.format(
+            "+ %d * interval '1 hour' < CURRENT_TIMESTAMP", resubmissionInterval
+        );
     }
 
-    public void save(DbLetter letter, Instant creationTime, String messageId) throws JsonProcessingException {
-        jdbcTemplate.update(
-            "INSERT INTO letters "
-                + "(id, message_id, service, type, created_at, sent_to_print_at, printed_at, additional_data) "
-                + "VALUES "
-                + "(:id, :messageId, :service, :type, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON)",
+    public UUID save(DbLetter letter, Instant creationTime, String messageId) throws JsonProcessingException {
+        return jdbcTemplate.execute(
+            "WITH new_letter AS ("
+                + "  INSERT INTO letters AS l"
+                + "  (id, message_id, service, type, created_at, sent_to_print_at, printed_at, additional_data)"
+                + "  VALUES"
+                + "  (:id, :messageId, :service, :type, :createdAt, :sentToPrintAt, :printedAt, :additionalData::JSON)"
+                + "  ON CONFLICT (message_id) DO UPDATE"
+                + "  SET submit_index = l.submit_index + 1, resubmitted_at = CURRENT_TIMESTAMP"
+                + "  WHERE l.message_id = :messageId"
+                + "    AND ("
+                + "      (l.resubmitted_at IS NULL AND l.created_at " + resubmissionIntervalSqlCondition + ") OR"
+                + "      (l.resubmitted_at IS NOT NULL AND l.resubmitted_at " + resubmissionIntervalSqlCondition + ")"
+                + "    )"
+                + "  RETURNING l.id"
+                + ") "
+                + "SELECT id FROM new_letter "
+                + "UNION ALL "
+                + "SELECT id FROM letters "
+                + "WHERE message_id = :messageId "
+                + "LIMIT 1",
             new MapSqlParameterSource()
                 .addValue("id", letter.id)
                 .addValue("messageId", messageId)
@@ -50,9 +76,21 @@ public class LetterRepository {
                 .addValue("createdAt", from(creationTime))
                 .addValue("additionalData", convertToJson(letter.additionalData))
                 .addValue("sentToPrintAt", null)
-                .addValue("printedAt", null)
+                .addValue("printedAt", null),
+            this::getLetterId
         );
-        log.info("Successfully saved letter data into database with id : {} and messageId :{}", letter.id, messageId);
+    }
+
+    private UUID getLetterId(PreparedStatement ps) throws SQLException {
+        List<UUID> uuids = new LinkedList<>();
+
+        try (ResultSet result = ps.executeQuery()) {
+            while (result.next()) {
+                uuids.add(result.getObject("id", UUID.class));
+            }
+        }
+
+        return uuids.stream().findFirst().orElseThrow(UnableToCreateLetterException::new);
     }
 
     /**

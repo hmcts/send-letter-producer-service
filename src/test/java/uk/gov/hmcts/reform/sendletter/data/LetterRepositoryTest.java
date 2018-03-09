@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -32,6 +31,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -52,7 +52,7 @@ public class LetterRepositoryTest {
 
     @Before
     public void setUp() {
-        letterRepository = new LetterRepository(jdbcTemplate, objectMapper);
+        letterRepository = new LetterRepository(jdbcTemplate, objectMapper, 0);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class LetterRepositoryTest {
         //given
         DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "cmc", letter);
 
-        given(jdbcTemplate.update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class)))
+        given(jdbcTemplate.update(anyString(), any(MapSqlParameterSource.class)))
             .willReturn(1234);
         given(objectMapper.writeValueAsString(letter.additionalData))
             .willReturn("{\"caseId\":\"1234\",\"type\":\"test\"}");
@@ -70,7 +70,7 @@ public class LetterRepositoryTest {
 
         //then
         //No exception thrown and successfully saved in database
-        verify(jdbcTemplate).update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class));
+        verify(jdbcTemplate).execute(anyString(), any(MapSqlParameterSource.class), anyObject());
         verify(objectMapper).writeValueAsString(letter.additionalData);
         verifyNoMoreInteractions(jdbcTemplate, objectMapper);
     }
@@ -81,7 +81,7 @@ public class LetterRepositoryTest {
         //given
         DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "cmc", letter);
 
-        given(jdbcTemplate.update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class)))
+        given(jdbcTemplate.execute(anyString(), any(MapSqlParameterSource.class), anyObject()))
             .willReturn(1234);
 
         willThrow(JsonProcessingException.class).given(objectMapper).writeValueAsString(letter.additionalData);
@@ -102,12 +102,12 @@ public class LetterRepositoryTest {
         //given
         DbLetter dbLetter = new DbLetter(UUID.randomUUID(), "cmc", letter);
 
-        given(jdbcTemplate.update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class)))
+        given(jdbcTemplate.execute(anyString(), any(MapSqlParameterSource.class), anyObject()))
             .willReturn(1234);
 
         willThrow(SQLException.class)
             .given(jdbcTemplate)
-            .update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class));
+            .execute(anyString(), any(MapSqlParameterSource.class), anyObject());
 
         // when
         Throwable exception = catchThrowable(() ->
@@ -117,7 +117,7 @@ public class LetterRepositoryTest {
         // then
         assertThat(exception).isInstanceOf(SQLException.class);
 
-        verify(jdbcTemplate).update(Mockito.anyString(), Mockito.any(MapSqlParameterSource.class));
+        verify(jdbcTemplate).execute(anyString(), any(MapSqlParameterSource.class), anyObject());
         verifyNoMoreInteractions(jdbcTemplate);
     }
 

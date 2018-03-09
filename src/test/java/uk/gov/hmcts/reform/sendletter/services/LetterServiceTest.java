@@ -44,7 +44,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -113,9 +112,8 @@ public class LetterServiceTest {
         given(queueClientSupplier.get()).willReturn(queueClient);
         given(queueClient.sendAsync(any(Message.class))).willReturn(voidCompletableFuture);
         given(queueClient.closeAsync()).willReturn(voidCompletableFuture);
-        doNothing()
-            .when(letterRepository)
-            .save(any(DbLetter.class), any(Instant.class), anyString());
+        given(letterRepository.save(any(DbLetter.class), any(Instant.class), anyString()))
+            .willReturn(UUID.randomUUID());
 
         //when
         UUID letterUuid = service.send(letter, "service");

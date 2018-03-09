@@ -89,13 +89,15 @@ public class SendLetterTest {
     }
 
     @Test
-    public void should_return_400_when_same_letter_is_sent_twice() throws Exception {
+    public void should_return_200_when_same_letter_is_sent_twice() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
 
         String letter = readResource("letter.json");
 
-        send(letter).andExpect(status().isOk());
-        send(letter).andExpect(status().isBadRequest());
+        String letterId1 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String letterId2 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        assertThat(letterId1).isEqualTo(letterId2);
     }
 
     @Test
