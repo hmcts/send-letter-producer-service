@@ -29,24 +29,29 @@ public class Letter {
     public final String type;
     @Enumerated(EnumType.STRING)
     public final LetterState state = LetterState.Created;
+    // Base64 encoded PDF.
+    public final String pdf;
 
     protected Letter() {
         messageId = null;
         service = null;
         additionalData = null;
         type = null;
+        pdf = null;
     }
 
     public Letter(
         String messageId,
         String service,
         String additionalData,
-        String type
+        String type,
+        String pdf
     ) {
         this.messageId = messageId;
         this.service = service;
         this.additionalData = additionalData;
         this.type = type;
+        this.pdf = pdf;
     }
 
     private static HTMLToPDFConverter converter = new HTMLToPDFConverter();

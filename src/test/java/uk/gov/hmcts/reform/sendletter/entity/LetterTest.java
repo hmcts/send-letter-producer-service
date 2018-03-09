@@ -38,7 +38,7 @@ public class LetterTest {
 
     @Test
     public void should_successfully_save_report_in_db() {
-        Letter l = new Letter("messageId", "service", "{}", "a type");
+        Letter l = new Letter("messageId", "service", "{}", "a type", "some data");
         repository.save(l);
         int count = (int) repository.count();
         List<Letter> letters = Lists.newArrayList(repository.findAll());
