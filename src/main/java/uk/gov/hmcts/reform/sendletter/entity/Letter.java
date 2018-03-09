@@ -44,4 +44,8 @@ public class Letter {
         this.additionalData = additionalData;
         this.type = type;
     }
+
+    public UUID getId() {
+        return id;
+    }
 }
