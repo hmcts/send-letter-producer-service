@@ -37,7 +37,7 @@ public class LetterTest {
     private DataSource dataSource;
 
     public static final Letter testLetter = new Letter("messageId",
-        "service", "{}", "a type", "some data");
+        "service", "{}", "a type", new byte[1]);
 
     @Test
     public void should_successfully_save_report_in_db() {
@@ -76,7 +76,7 @@ public class LetterTest {
     public void generates_pdf() throws IOException {
         byte[] template = Resources.toByteArray(Resources.getResource("template.html"));
         Map<String, Object> content = ImmutableMap.of("name", "John");
-        String result = Letter.generatePdf(template, content);
+        byte[] result = Letter.generatePdf(template, content);
         assertThat(result).isNotEmpty();
     }
 }

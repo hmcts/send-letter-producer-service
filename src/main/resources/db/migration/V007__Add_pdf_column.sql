@@ -1,2 +1,2 @@
 ALTER TABLE letters
-ADD COLUMN pdf TEXT;
+ADD COLUMN pdf BYTEA;

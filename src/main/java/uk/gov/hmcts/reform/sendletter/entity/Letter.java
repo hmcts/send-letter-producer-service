@@ -4,7 +4,6 @@ import uk.gov.hmcts.reform.pdf.generator.HTMLToPDFConverter;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 import javax.persistence.Entity;
@@ -30,7 +29,7 @@ public class Letter {
     @Enumerated(EnumType.STRING)
     public final LetterState state = LetterState.Created;
     // Base64 encoded PDF.
-    public final String pdf;
+    public final byte[] pdf;
 
     protected Letter() {
         messageId = null;
@@ -45,7 +44,7 @@ public class Letter {
         String service,
         String additionalData,
         String type,
-        String pdf
+        byte[] pdf
     ) {
         this.messageId = messageId;
         this.service = service;
@@ -56,8 +55,7 @@ public class Letter {
 
     private static HTMLToPDFConverter converter = new HTMLToPDFConverter();
 
-    public static synchronized String generatePdf(byte[] template, Map<String, Object> content) {
-        byte[] bytes = converter.convert(template, content);
-        return new String(Base64.getEncoder().encode(bytes));
+    public static synchronized byte[] generatePdf(byte[] template, Map<String, Object> content) {
+        return converter.convert(template, content);
     }
 }
