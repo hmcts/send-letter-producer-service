@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sendletter.controllers;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import com.jayway.jsonpath.JsonPath;
 import com.microsoft.azure.servicebus.IQueueClient;
 import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
@@ -10,13 +11,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,6 +36,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -56,6 +61,9 @@ public class SendLetterTest {
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
+
+    @Value("${letter-resubmission-interval-in-hours}")
+    private int resubmissionInterval;
 
     @MockBean
     private QueueClientSupplier queueClientSupplier;
@@ -92,12 +100,141 @@ public class SendLetterTest {
     public void should_return_200_when_same_letter_is_sent_twice() throws Exception {
         given(queueClientSupplier.get()).willReturn(queueClient);
 
+        // given
         String letter = readResource("letter.json");
 
-        String letterId1 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        String letterId2 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        // when
+        String response1 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String response2 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
-        assertThat(letterId1).isEqualTo(letterId2);
+        // then
+        assertThat(response1).isEqualTo(response2);
+
+        // and
+        UUID letterId = UUID.fromString(JsonPath.read(response1, "$.letter_id"));
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(
+            "SELECT * FROM letters WHERE id = :id",
+            new MapSqlParameterSource().addValue("id", letterId)
+        );
+
+        rs.next();
+
+        assertThat(rs.getInt("submit_index")).isEqualTo(1);
+        assertThat(rs.getTimestamp("resubmitted_at")).isNull();
+    }
+
+    @Test
+    public void should_allow_resubmit_and_increase_the_index() throws Exception {
+        given(queueClientSupplier.get()).willReturn(queueClient);
+
+        // given
+        String letter = readResource("letter.json");
+        String response1 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        UUID letterId = UUID.fromString(JsonPath.read(response1, "$.letter_id"));
+        String query = String.format(
+            "UPDATE letters SET created_at = CURRENT_TIMESTAMP - (%d * interval '1 hour') WHERE id = :id",
+            resubmissionInterval + 1
+        );
+        jdbcTemplate.update(query, new MapSqlParameterSource().addValue("id", letterId));
+
+        // when
+        String response2 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        // then
+        assertThat(response1).isEqualTo(response2);
+
+        // and
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(
+            "SELECT * FROM letters WHERE id = :id",
+            new MapSqlParameterSource().addValue("id", letterId)
+        );
+
+        rs.next();
+
+        assertThat(rs.getInt("submit_index")).isEqualTo(2);
+        assertThat(rs.getTimestamp("resubmitted_at")).isNotNull();
+    }
+
+    @Test
+    public void should_not_allow_resubmit_when_resubmission_already_happened_within_allowed_window() throws Exception {
+        given(queueClientSupplier.get()).willReturn(queueClient);
+
+        // given
+        String letter = readResource("letter.json");
+        String response1 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        UUID letterId = UUID.fromString(JsonPath.read(response1, "$.letter_id"));
+
+        // and
+        String query = String.format(
+            "UPDATE letters "
+                + "SET submit_index = 2,"
+                + "  resubmitted_at = CURRENT_TIMESTAMP - (%d * interval '1 hour' / double precision '2.0') "
+                + "WHERE id = :id",
+            resubmissionInterval + 1
+        );
+        jdbcTemplate.update(query, new MapSqlParameterSource().addValue("id", letterId));
+        SqlRowSet rs1 = jdbcTemplate.queryForRowSet(
+            "SELECT * FROM letters WHERE id = :id",
+            new MapSqlParameterSource().addValue("id", letterId)
+        );
+        rs1.next();
+
+        // when
+        String response2 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        // then
+        assertThat(response1).isEqualTo(response2);
+
+        // and
+        SqlRowSet rs2 = jdbcTemplate.queryForRowSet(
+            "SELECT * FROM letters WHERE id = :id",
+            new MapSqlParameterSource().addValue("id", letterId)
+        );
+        rs2.next();
+
+        assertThat(rs2.getInt("submit_index")).isEqualTo(rs1.getInt("submit_index"));
+        assertThat(rs2.getTimestamp("resubmitted_at")).isEqualTo(rs1.getTimestamp("resubmitted_at"));
+    }
+
+    @Test
+    public void should_allow_resubmit_when_resubmission_happened_before_allowed_window() throws Exception {
+        given(queueClientSupplier.get()).willReturn(queueClient);
+
+        // given
+        String letter = readResource("letter.json");
+        String response1 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        UUID letterId = UUID.fromString(JsonPath.read(response1, "$.letter_id"));
+
+        // and
+        String query = String.format(
+            "UPDATE letters "
+                + "SET submit_index = 2,"
+                + "  resubmitted_at = CURRENT_TIMESTAMP - (%d * interval '1 hour') "
+                + "WHERE id = :id",
+            resubmissionInterval + 1
+        );
+        jdbcTemplate.update(query, new MapSqlParameterSource().addValue("id", letterId));
+        SqlRowSet rs1 = jdbcTemplate.queryForRowSet(
+            "SELECT * FROM letters WHERE id = :id",
+            new MapSqlParameterSource().addValue("id", letterId)
+        );
+        rs1.next();
+
+        // when
+        String response2 = send(letter).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        // then
+        assertThat(response1).isEqualTo(response2);
+
+        // and
+        SqlRowSet rs2 = jdbcTemplate.queryForRowSet(
+            "SELECT * FROM letters WHERE id = :id",
+            new MapSqlParameterSource().addValue("id", letterId)
+        );
+        rs2.next();
+
+        assertThat(rs2.getInt("submit_index")).isEqualTo(rs1.getInt("submit_index") + 1);
+        assertThat(rs2.getTimestamp("resubmitted_at")).isNotEqualTo(rs1.getTimestamp("resubmitted_at"));
     }
 
     @Test
