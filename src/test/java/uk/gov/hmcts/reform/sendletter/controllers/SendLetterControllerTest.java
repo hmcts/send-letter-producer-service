@@ -116,7 +116,7 @@ public class SendLetterControllerTest {
         sendLetter(readResource("letter.json"))
             .andExpect(status().isBadRequest())
             .andExpect(content().string(
-                containsString("Exception occured while parsing letter contents")));
+                containsString("Exception occurred while parsing letter contents")));
 
 
         verify(authService).authenticate("auth-header-value");

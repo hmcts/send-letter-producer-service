@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
+import uk.gov.hmcts.reform.sendletter.util.MessageIdProvider;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -71,9 +72,10 @@ public class GetLetterStatusTest {
         Letter letter = new Letter(Collections.emptyList(), "some-type", Collections.emptyMap());
         DbLetter dbLetter = new DbLetter(letterId, "some-service", letter);
         ZonedDateTime createdAt = ZonedDateTime.now(ZoneOffset.UTC);
+        String messageId = MessageIdProvider.randomMessageId();
 
         // when
-        letterRepository.save(dbLetter, createdAt.toInstant(), "some-message-id");
+        letterRepository.save(dbLetter, createdAt.toInstant(), messageId);
 
         // then
         MvcResult result = getLetterStatus(letterId)
@@ -82,7 +84,7 @@ public class GetLetterStatusTest {
 
         String actualStatus = result.getResponse().getContentAsString();
         String expectedStatus = objectMapper.writeValueAsString(
-            new LetterStatus(letterId, "some-message-id", createdAt, null, null, false)
+            new LetterStatus(letterId, messageId, createdAt, null, null, false)
         );
 
         assertThat(actualStatus).isEqualTo(expectedStatus);

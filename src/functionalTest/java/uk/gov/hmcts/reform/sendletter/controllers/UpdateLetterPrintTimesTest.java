@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.model.out.LetterStatus;
 import uk.gov.hmcts.reform.sendletter.queue.QueueClientSupplier;
+import uk.gov.hmcts.reform.sendletter.util.MessageIdProvider;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -68,8 +69,9 @@ public class UpdateLetterPrintTimesTest {
         Letter letter = new Letter(Collections.emptyList(), "some-type", Collections.emptyMap());
         DbLetter dbLetter = new DbLetter(letterId, serviceCanMakeUpdate, letter);
         ZonedDateTime createdAt = ZonedDateTime.now(ZoneOffset.UTC);
+        String messageId = MessageIdProvider.randomMessageId();
 
-        letterRepository.save(dbLetter, createdAt.toInstant(), "some-message-id");
+        letterRepository.save(dbLetter, createdAt.toInstant(), messageId);
 
         ZonedDateTime updated = ZonedDateTime.now(ZoneOffset.UTC);
 
@@ -82,7 +84,7 @@ public class UpdateLetterPrintTimesTest {
 
         LetterStatus actualStatus = result.orElse(null);
         LetterStatus expectedStatus = new LetterStatus(
-            letterId, "some-message-id", createdAt, updated, updated.plusHours(1), false
+            letterId, messageId, createdAt, updated, updated.plusHours(1), false
         );
 
         assertThat(actualStatus).isEqualToComparingFieldByField(expectedStatus);

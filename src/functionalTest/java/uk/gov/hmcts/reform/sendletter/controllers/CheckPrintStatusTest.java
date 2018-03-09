@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +21,7 @@ import uk.gov.hmcts.reform.sendletter.data.model.DbLetter;
 import uk.gov.hmcts.reform.sendletter.logging.AppInsights;
 import uk.gov.hmcts.reform.sendletter.model.in.Letter;
 import uk.gov.hmcts.reform.sendletter.model.out.NotPrintedLetter;
+import uk.gov.hmcts.reform.sendletter.util.MessageIdProvider;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -53,9 +52,6 @@ public class CheckPrintStatusTest {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private NamedParameterJdbcTemplate jdbcTemplate;
-
     @MockBean
     private AuthTokenValidator tokenValidator;
 
@@ -68,11 +64,6 @@ public class CheckPrintStatusTest {
     @Before
     public void setUp() {
         given(tokenValidator.getServiceName("auth-header-value")).willReturn(serviceName);
-    }
-
-    @After
-    public void tearDown() {
-        jdbcTemplate.update("DELETE FROM letters", Collections.emptyMap());
     }
 
     @Test
@@ -171,7 +162,7 @@ public class CheckPrintStatusTest {
         DbLetter dbLetter = new DbLetter(letterId, serviceName, letter);
         Instant created = Instant.now().minus(2, ChronoUnit.DAYS);
 
-        letterRepository.save(dbLetter, created, "some-message-id");
+        letterRepository.save(dbLetter, created, MessageIdProvider.randomMessageId());
 
         return letterId;
     }

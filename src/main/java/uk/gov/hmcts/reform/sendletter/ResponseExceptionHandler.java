@@ -75,12 +75,12 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConnectionException.class)
     protected ResponseEntity<String> handleServiceBusException(ConnectionException exc) {
         log.error(exc.getMessage(), exc);
-        return status(INTERNAL_SERVER_ERROR).body("Exception occured while communicating with service bus");
+        return status(INTERNAL_SERVER_ERROR).body("Exception occurred while communicating with service bus");
     }
 
     @ExceptionHandler(JsonProcessingException.class)
     protected ResponseEntity<String> handleJsonProcessingException() {
-        return status(BAD_REQUEST).body("Exception occured while parsing letter contents");
+        return status(BAD_REQUEST).body("Exception occurred while parsing letter contents");
     }
 
     @ExceptionHandler(UnauthorizedException.class)
