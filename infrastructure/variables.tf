@@ -44,5 +44,5 @@ variable "jenkins_AAD_objectId" {
 }
 
 variable s2s_url {
-  default = "http://betadevbccidams2slb.reform.hmcts.net:80"
+  default = "http://betadevaccidams2slb.reform.hmcts.net:80"
 }
