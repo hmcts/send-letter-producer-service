@@ -4,6 +4,11 @@ provider "vault" {
   address = "https://vault.reform.hmcts.net:6200"
 }
 
+locals {
+  ase_name = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
+  s2s_url = "http://rpe-service-auth-provider-${var.env}.service.${local.ase_name}.internal"
+}
+
 # Make sure the resource group exists
 resource "azurerm_resource_group" "rg" {
   name     = "${var.product}-${var.microservice}-${var.env}"
@@ -54,7 +59,7 @@ module "send-letter-producer-service" {
   subscription        = "${var.subscription}"
 
   app_settings = {
-    S2S_URL                       = "${var.s2s_url}"
+    S2S_URL                       = "${local.s2s_url}"
     SERVICE_BUS_CONNECTION_STRING = "${module.servicebus-queue.primary_send_connection_string}"
     LETTER_TRACKING_DB_HOST       = "${module.db.host_name}"
     LETTER_TRACKING_DB_PORT       = "${module.db.postgresql_listen_port}"
@@ -113,7 +118,7 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 # region smoke test config
 resource "azurerm_key_vault_secret" "smoke-test-s2s-url" {
   name      = "smoke-test-s2s-url"
-  value     = "${var.s2s_url}"
+  value     = "${local.s2s_url}"
   vault_uri = "${module.key-vault.key_vault_uri}"
 }
 # endregion
