@@ -220,6 +220,7 @@ dependencies {
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.7'
   smokeTestCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+  smokeTestCompile group: 'com.warrenstrange', name: 'googleauth', version: '1.1.5'
 }
 
 jar {
