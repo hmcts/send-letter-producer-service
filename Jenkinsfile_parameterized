@@ -1,6 +1,21 @@
 #!groovy
 @Library("Infrastructure") _
 
+List<LinkedHashMap<String, Object>> secrets = [
+  secret('smoke-test-s2s-name', 'SMOKE_TEST_S2S_NAME'),
+  secret('smoke-test-s2s-secret', 'SMOKE_TEST_S2S_SECRET'),
+  secret('smoke-test-s2s-url', 'SMOKE_TEST_S2S_URL')
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+  [ $class: 'AzureKeyVaultSecret',
+    secretType: 'Secret',
+    name: secretName,
+    version: '',
+    envVariable: envVar
+  ]
+}
+
 properties([
   parameters([
     string(name: 'PRODUCT_NAME', defaultValue: 'send-letter', description: ''),
@@ -14,5 +29,5 @@ properties([
 ])
 
 withParameterizedPipeline(params.TYPE, params.PRODUCT_NAME, params.APP, params.ENVIRONMENT, params.SUBSCRIPTION) {
-
+  loadVaultSecrets(secrets)
 }
