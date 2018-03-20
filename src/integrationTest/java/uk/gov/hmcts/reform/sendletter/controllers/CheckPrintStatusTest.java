@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class CheckPrintStatusTest {
 
-    private static final String serviceName = "sendletterconsumer";
+    private static final String serviceName = "send_letter_consumer";
 
     private static final LocalTime fivePm = LocalTime.of(17, 0, 0);
 

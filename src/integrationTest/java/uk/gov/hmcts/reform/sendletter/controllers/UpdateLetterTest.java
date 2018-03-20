@@ -67,7 +67,7 @@ public class UpdateLetterTest {
     @Test
     public void should_return_204_when_is_failed_column_is_successfully_updated() throws Exception {
         //given
-        given(tokenValidator.getServiceName("auth-header-value")).willReturn("sendletterconsumer");
+        given(tokenValidator.getServiceName("auth-header-value")).willReturn("send_letter_consumer");
 
         String response = send(readResource("letter.json"))
             .andReturn()
@@ -79,14 +79,14 @@ public class UpdateLetterTest {
         update(letterId + "/is-failed")
             .andExpect(status().is(204));
 
-        verify(authService).assertCanUpdateLetter("sendletterconsumer");
+        verify(authService).assertCanUpdateLetter("send_letter_consumer");
     }
 
     @Test
     public void updateIsFailed_should_throw_letter_not_found_exception_when_letter_id_does_not_exists_in_db()
         throws Exception {
         //given
-        given(tokenValidator.getServiceName("auth-header-value")).willReturn("sendletterconsumer");
+        given(tokenValidator.getServiceName("auth-header-value")).willReturn("send_letter_consumer");
 
         //when
         MvcResult mvcResult = update(UUID.randomUUID() + "/is-failed")
@@ -96,7 +96,7 @@ public class UpdateLetterTest {
         assertThat(mvcResult.getResolvedException())
             .isExactlyInstanceOf(LetterNotFoundException.class);
 
-        verify(authService).assertCanUpdateLetter("sendletterconsumer");
+        verify(authService).assertCanUpdateLetter("send_letter_consumer");
     }
 
     @Test
