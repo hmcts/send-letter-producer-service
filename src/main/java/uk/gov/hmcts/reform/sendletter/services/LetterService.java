@@ -138,8 +138,7 @@ public class LetterService {
     }
 
     public void checkPrintState() {
-        // TODO
-        letterRepository.getStaleLetters();
+        letterRepository.getStaleLetters().forEach(insights::trackNotPrintedLetter);
     }
 
     private void logMessageSendCompletion(Instant started, String messageId, Throwable exception) {

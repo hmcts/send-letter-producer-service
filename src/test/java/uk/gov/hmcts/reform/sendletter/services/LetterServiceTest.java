@@ -47,6 +47,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -355,8 +356,8 @@ public class LetterServiceTest {
         // when
         service.checkPrintState();
 
-        // then TODO
-        // verify(insights, never()).trackNotPrintedLetter(any(NotPrintedLetter.class));
+        // then
+        verify(insights, never()).trackNotPrintedLetter(any(NotPrintedLetter.class));
 
         ZonedDateTime now = ZonedDateTime.now();
         NotPrintedLetter letter = new NotPrintedLetter(
@@ -375,8 +376,8 @@ public class LetterServiceTest {
         // when
         service.checkPrintState();
 
-        // then TODO
-        // verify(insights).trackNotPrintedLetter(any(NotPrintedLetter.class));
+        // then
+        verify(insights).trackNotPrintedLetter(any(NotPrintedLetter.class));
 
         // given five letters are not printed :(
         reset(insights);
@@ -385,7 +386,7 @@ public class LetterServiceTest {
         // when
         service.checkPrintState();
 
-        // then TODO
-        // verify(insights, times(5)).trackNotPrintedLetter(any(NotPrintedLetter.class));
+        // then
+        verify(insights, times(5)).trackNotPrintedLetter(any(NotPrintedLetter.class));
     }
 }
