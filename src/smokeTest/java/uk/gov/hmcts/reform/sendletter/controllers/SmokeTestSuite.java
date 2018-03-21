@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
+import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import org.json.JSONArray;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
@@ -34,12 +36,16 @@ public abstract class SmokeTestSuite {
      * @return s2s JWT token.
      */
     protected String signIn() {
+        Map<String, Object> params = ImmutableMap.of(
+            "microservice", this.s2sName,
+            "oneTimePassword", new GoogleAuthenticator().getTotpPassword(this.s2sSecret)
+        );
+
         return RestAssured
             .given()
             .relaxedHTTPSValidation()
             .baseUri(this.s2sUrl)
-            .formParam("microservice", this.s2sName)
-            .formParam("oneTimePassword", new GoogleAuthenticator().getTotpPassword(this.s2sSecret))
+            .body(params)
             .post("/lease")
             .andReturn()
             .getBody()
