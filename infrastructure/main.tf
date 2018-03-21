@@ -29,6 +29,11 @@ module "servicebus-queue" {
   resource_group_name = "${azurerm_resource_group.rg.name}"
 }
 
+# read the microservice key for tests from Vault
+data "vault_generic_secret" "tests_s2s_secret" {
+  path = "secret/${var.vault_section}/ccidam/service-auth-provider/api/microservice-keys/send-letter-tests"
+}
+
 # save the queue's "listen" connection string to vault
 resource "vault_generic_secret" "servicebus-listen-conn-string" {
   path = "secret/${var.vault_section}/cc/send-letter/servicebus-listen-conn-string"
@@ -72,7 +77,7 @@ module "send-letter-producer-service" {
   }
 }
 
-# region save DB details to Azure Key Vault
+
 module "key-vault" {
   source              = "git@github.com:contino/moj-module-key-vault?ref=master"
   product             = "${var.product}"
@@ -84,6 +89,7 @@ module "key-vault" {
   product_group_object_id = "38f9dea6-e861-4a50-9e73-21e64f563537"
 }
 
+# region save DB details to Azure Key Vault
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name      = "${var.microservice}-POSTGRES-USER"
   value     = "${module.db.user_name}"
@@ -119,6 +125,18 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 resource "azurerm_key_vault_secret" "smoke-test-s2s-url" {
   name      = "smoke-test-s2s-url"
   value     = "${local.s2s_url}"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "smoke-test-s2s-name" {
+  name      = "smoke-test-s2s-name"
+  value     = "send_letter_tests"
+  vault_uri = "${module.key-vault.key_vault_uri}"
+}
+
+resource "azurerm_key_vault_secret" "smoke-test-s2s-secret" {
+  name      = "smoke-test-s2s-secret"
+  value     = "${data.vault_generic_secret.tests_s2s_secret.data["value"]}"
   vault_uri = "${module.key-vault.key_vault_uri}"
 }
 # endregion
