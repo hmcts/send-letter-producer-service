@@ -7,6 +7,7 @@ provider "vault" {
 locals {
   ase_name = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
   s2s_url = "http://rpe-service-auth-provider-${var.env}.service.${local.ase_name}.internal"
+  db_connection_options = "?ssl=true"
 }
 
 # Make sure the resource group exists
@@ -64,16 +65,17 @@ module "send-letter-producer-service" {
   subscription        = "${var.subscription}"
 
   app_settings = {
-    S2S_URL                       = "${local.s2s_url}"
-    SERVICE_BUS_CONNECTION_STRING = "${module.servicebus-queue.primary_send_connection_string}"
-    LETTER_TRACKING_DB_HOST       = "${module.db.host_name}"
-    LETTER_TRACKING_DB_PORT       = "${module.db.postgresql_listen_port}"
-    LETTER_TRACKING_DB_USER_NAME  = "${module.db.user_name}"
-    LETTER_TRACKING_DB_PASSWORD   = "${module.db.postgresql_password}"
-    LETTER_TRACKING_DB_NAME       = "${module.db.postgresql_database}"
-    FLYWAY_URL                    = "jdbc:postgresql://${module.db.host_name}:${module.db.postgresql_listen_port}/${module.db.postgresql_database}"
-    FLYWAY_USER                   = "${module.db.user_name}"
-    FLYWAY_PASSWORD               = "${module.db.postgresql_password}"
+    S2S_URL                         = "${local.s2s_url}"
+    SERVICE_BUS_CONNECTION_STRING   = "${module.servicebus-queue.primary_send_connection_string}"
+    LETTER_TRACKING_DB_HOST         = "${module.db.host_name}"
+    LETTER_TRACKING_DB_PORT         = "${module.db.postgresql_listen_port}"
+    LETTER_TRACKING_DB_USER_NAME    = "${module.db.user_name}"
+    LETTER_TRACKING_DB_PASSWORD     = "${module.db.postgresql_password}"
+    LETTER_TRACKING_DB_NAME         = "${module.db.postgresql_database}"
+    LETTER_TRACKING_DB_CONN_OPTIONS = "${local.db_connection_options}"
+    FLYWAY_URL                      = "jdbc:postgresql://${module.db.host_name}:${module.db.postgresql_listen_port}/${module.db.postgresql_database}${local.db_connection_options}"
+    FLYWAY_USER                     = "${module.db.user_name}"
+    FLYWAY_PASSWORD                 = "${module.db.postgresql_password}"
   }
 }
 

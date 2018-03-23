@@ -20,8 +20,8 @@ done
 
 # clean the database
 >&2 echo "Flyway is cleaning the database first"
-flyway -url=jdbc:postgresql://"$host":"$port"/"$database_name" -schemas=$schema_name -user="$username" -password="$password" clean
+flyway -url=jdbc:postgresql://"$host":"$port"/"$database_name"?ssl=true -schemas=$schema_name -user="$username" -password="$password" clean
 
 # migrate the database
 >&2 echo "Flyway is running pending migrations -if any- on the database"
-flyway -url=jdbc:postgresql://"$host":"$port"/"$database_name" -schemas=$schema_name -user="$username" -password="$password" migrate
+flyway -url=jdbc:postgresql://"$host":"$port"/"$database_name"?ssl=true -schemas=$schema_name -user="$username" -password="$password" migrate
