@@ -78,7 +78,7 @@ task integration(type: Test, description: 'Runs the integration tests.', group: 
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath = sourceSets.integrationTest.runtimeClasspath
 
-  environment("APPLICATION_INSIGHTS_IKEY", "test-key")
+  environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 }
 
 task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
@@ -174,7 +174,7 @@ distributions {
 
 def versions = [
   springfoxSwagger: '2.7.0',
-  reformLogging: '1.6.1',
+  reformLogging: '2.0.2',
   jackson: dependencyManagement.importedProperties['jackson.version'],
   logback: '1.2.3'
 ]
@@ -225,6 +225,10 @@ dependencies {
 
 jar {
   archiveName 'send-letter-producer-service.jar'
+
+  manifest {
+    attributes('Implementation-Version': project.version.toString())
+  }
 }
 
 task migratePostgresDatabase(type: org.flywaydb.gradle.task.FlywayMigrateTask) {

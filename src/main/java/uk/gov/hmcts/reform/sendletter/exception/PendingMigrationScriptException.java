@@ -1,8 +1,15 @@
 package uk.gov.hmcts.reform.sendletter.exception;
 
-public class PendingMigrationScriptException extends RuntimeException {
+import uk.gov.hmcts.reform.logging.exception.AlertLevel;
+import uk.gov.hmcts.reform.logging.exception.UnknownErrorCodeException;
+
+/**
+ * SonarQube reports as error. Max allowed - 5 parents
+ */
+@SuppressWarnings("squid:MaximumInheritanceDepth")
+public class PendingMigrationScriptException extends UnknownErrorCodeException {
 
     public PendingMigrationScriptException(String script) {
-        super("Found migration not yet applied " + script);
+        super(AlertLevel.P1, "Found migration not yet applied " + script);
     }
 }

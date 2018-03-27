@@ -11,7 +11,7 @@ services:
     image: docker.artifactory.reform.hmcts.net/reform/send-letter-producer-service
     container_name: send-letter-producer-service
     environment:
-      - APPLICATION_INSIGHTS_IKEY
+      - APPINSIGHTS_INSTRUMENTATIONKEY
       - FLYWAY_ENABLED=false
       - LETTER_TRACKING_DB_PASSWORD
       - SERVICE_BUS_CONNECTION_STRING

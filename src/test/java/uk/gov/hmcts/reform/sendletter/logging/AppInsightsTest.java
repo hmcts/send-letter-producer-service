@@ -22,6 +22,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -61,7 +62,7 @@ public class AppInsightsTest {
     public void should_track_message_acknowledgement_event_for_success_case() {
         insights.trackMessageAcknowledgement(java.time.Duration.ofMinutes(1), true, MESSAGE_ID);
 
-        verify(telemetry).getContext();
+        verify(telemetry, times(2)).getContext();
         verify(telemetry).trackDependency(
             eq(AppInsights.SERVICE_BUS_DEPENDENCY),
             eq(AppInsights.SERVICE_BUS_MESSAGE_ACKNOWLEDGED),
@@ -80,7 +81,7 @@ public class AppInsightsTest {
     public void should_track_message_acknowledgement_event_for_fail_case() {
         insights.trackMessageAcknowledgement(java.time.Duration.ofMinutes(1), false, MESSAGE_ID);
 
-        verify(telemetry).getContext();
+        verify(telemetry, times(2)).getContext();
         verify(telemetry).trackDependency(
             eq(AppInsights.SERVICE_BUS_DEPENDENCY),
             eq(AppInsights.SERVICE_BUS_MESSAGE_ACKNOWLEDGED),

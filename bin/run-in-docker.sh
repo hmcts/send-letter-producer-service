@@ -15,7 +15,7 @@ print_help() {
     --help, -h                          Print this help block
 
   Available parameters:
-    APPLICATION_INSIGHTS_IKEY           Defaults to '00000000-0000-0000-0000-000000000000'
+    APPINSIGHTS_INSTRUMENTATIONKEY      Defaults to '00000000-0000-0000-0000-000000000000'
     LETTER_TRACKING_DB_PASSWORD         Defaults to 'password'
     S2S_URL                             Defaults to 'false' - disables health check
     SERVICE_BUS_CONNECTION_STRING       Defaults to 'sb://namespace.servicebus.windows.net'
@@ -29,7 +29,7 @@ GRADLE_INSTALL=false
 FLYWAY_ENABLED=false
 
 # environment variables
-APPLICATION_INSIGHTS_IKEY="00000000-0000-0000-0000-000000000000"
+APPINSIGHTS_INSTRUMENTATIONKEY="00000000-0000-0000-0000-000000000000"
 LETTER_TRACKING_DB_PASSWORD="password"
 S2S_URL=false
 SERVICE_BUS_CONNECTION_STRING="sb://namespace.servicebus.windows.net"
@@ -52,7 +52,7 @@ execute_script() {
 
   echo "Assigning environment variables.."
 
-  export APPLICATION_INSIGHTS_IKEY=${APPLICATION_INSIGHTS_IKEY}
+  export APPINSIGHTS_INSTRUMENTATIONKEY=${APPINSIGHTS_INSTRUMENTATIONKEY}
   export LETTER_TRACKING_DB_PASSWORD=${LETTER_TRACKING_DB_PASSWORD}
   export S2S_URL=${S2S_URL}
   export SERVICE_BUS_CONNECTION_STRING=${SERVICE_BUS_CONNECTION_STRING}
@@ -76,7 +76,7 @@ while true ; do
     -f|--with-flyway) FLYWAY_ENABLED=true ; shift ;;
     -p|--param)
       case "$2" in
-        APPLICATION_INSIGHTS_IKEY=*) APPLICATION_INSIGHTS_IKEY="${2#*=}" ; shift 2 ;;
+        APPINSIGHTS_INSTRUMENTATIONKEY=*) APPINSIGHTS_INSTRUMENTATIONKEY="${2#*=}" ; shift 2 ;;
         LETTER_TRACKING_DB_PASSWORD=*) LETTER_TRACKING_DB_PASSWORD="${2#*=}" ; shift 2 ;;
         S2S_URL=*) S2S_URL="${2#*=}" ; shift 2 ;;
         SERVICE_BUS_CONNECTION_STRING=*) SERVICE_BUS_CONNECTION_STRING="${2#*=}" ; shift 2 ;;
