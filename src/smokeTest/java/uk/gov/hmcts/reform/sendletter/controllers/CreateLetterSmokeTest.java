@@ -15,7 +15,7 @@ public class CreateLetterSmokeTest extends SmokeTestSuite {
 
         String id = givenJwt(jwt)
             .and()
-            .body(sampleLetterJson())
+            .body(sampleLetterJson("sendLetter.json"))
             .when()
             .post("/letters")
             .then()

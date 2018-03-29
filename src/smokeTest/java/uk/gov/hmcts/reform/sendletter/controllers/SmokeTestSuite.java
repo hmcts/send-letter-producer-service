@@ -1,19 +1,18 @@
 package uk.gov.hmcts.reform.sendletter.controllers;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Resources;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -38,6 +37,7 @@ public abstract class SmokeTestSuite {
 
     /**
      * Sign in to s2s.
+     *
      * @return s2s JWT token.
      */
     protected String signIn() {
@@ -62,17 +62,7 @@ public abstract class SmokeTestSuite {
             .print();
     }
 
-    protected String sampleLetterJson() throws JSONException {
-        return new JSONObject()
-            .put("type", "smoke_test")
-            .put("documents", new JSONArray()
-                .put(new JSONObject()
-                    .put("template", "some_template")
-                    .put("values", new JSONObject()
-                        .put("a", "b")
-                        .put("uuid", UUID.randomUUID().toString()) // so that we don't send the same letter twice
-                    )
-                )
-            ).toString();
+    protected String sampleLetterJson(String fileName) throws IOException {
+        return Resources.toString(Resources.getResource(fileName), Charsets.UTF_8);
     }
 }
