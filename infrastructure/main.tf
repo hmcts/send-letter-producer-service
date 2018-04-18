@@ -12,7 +12,7 @@ locals {
 
 # Make sure the resource group exists
 resource "azurerm_resource_group" "rg" {
-  name     = "${var.product}-${var.microservice}-${var.env}"
+  name     = "${var.product}-${var.component}-${var.env}"
   location = "${var.location_app}"
 }
 
@@ -57,7 +57,7 @@ module "db" {
 
 module "send-letter-producer-service" {
   source              = "git@github.com:contino/moj-module-webapp?ref=master"
-  product             = "${var.product}-${var.microservice}"
+  product             = "${var.product}-${var.component}"
   location            = "${var.location_app}"
   env                 = "${var.env}"
   ilbIp               = "${var.ilbIp}"
@@ -93,31 +93,31 @@ module "key-vault" {
 
 # region save DB details to Azure Key Vault
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
-  name      = "${var.microservice}-POSTGRES-USER"
+  name      = "${var.component}-POSTGRES-USER"
   value     = "${module.db.user_name}"
   vault_uri = "${module.key-vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
-  name      = "${var.microservice}-POSTGRES-PASS"
+  name      = "${var.component}-POSTGRES-PASS"
   value     = "${module.db.postgresql_password}"
   vault_uri = "${module.key-vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
-  name      = "${var.microservice}-POSTGRES-HOST"
+  name      = "${var.component}-POSTGRES-HOST"
   value     = "${module.db.host_name}"
   vault_uri = "${module.key-vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
-  name      = "${var.microservice}-POSTGRES-PORT"
+  name      = "${var.component}-POSTGRES-PORT"
   value     = "${module.db.postgresql_listen_port}"
   vault_uri = "${module.key-vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
-  name      = "${var.microservice}-POSTGRES-DATABASE"
+  name      = "${var.component}-POSTGRES-DATABASE"
   value     = "${module.db.postgresql_database}"
   vault_uri = "${module.key-vault.key_vault_uri}"
 }

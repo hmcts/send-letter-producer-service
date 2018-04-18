@@ -7,5 +7,5 @@ output "vaultName" {
 }
 
 output "microserviceName" {
-  value = "${var.microservice}"
+  value = "${var.component}"
 }
