@@ -1,21 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
-
-  <!--
-
-  Add dependency check suppression rules here, in accordance with
-  https://jeremylong.github.io/DependencyCheck/general/suppression.html
-
-  Example:
-
-  <suppress>
-    <notes><![CDATA[
-      Does not apply as we're not using the XmlMapper.
-    ]]></notes>
-    <gav regex="true">^com\.fasterxml\.jackson\.(core|datatype|module):jackson-.*:.*$</gav>
-    <cve>CVE-2016-7051</cve>
-  </suppress>
-
-  -->
-
+    <suppress>
+        <notes><![CDATA[only relates to cookies, which we don't do at the java level]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2015-2156</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[waiting for spring to upgrade to it, file name: jackson-databind-2.8.10.jar]]></notes>
+        <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+        <cve>CVE-2017-17485</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[waiting for spring to upgrade to it, file name: jackson-databind-2.8.10.jar]]></notes>
+        <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+        <cve>CVE-2018-5968</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[only relates to ssl which we don't do at the java app level]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2014-3488</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            <![CDATA[something to do with oracle, doesn't look like it applies file name: jersey-apache-client4-1.19.1.jar]]></notes>
+        <gav regex="true">^com\.sun\.jersey\.contribs:jersey-apache-client4:.*$</gav>
+        <cve>CVE-2006-0550</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            <![CDATA[only applies when tomcat is run as a service, file name: tomcat-annotations-api-8.5.27.jar]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:tomcat-annotations-api:.*$</gav>
+        <cve>CVE-2016-6325</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[only relates to ssl, file name: tomcat-annotations-api-8.5.27.jar]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:tomcat-annotations-api:.*$</gav>
+        <cve>CVE-2017-6056</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[only relates to ssl]]></notes>
+        <gav regex="true">.*$</gav>
+        <cve>CVE-2016-4970</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            <![CDATA[only applies when it is run as a service, file name: tomcat-annotations-api-8.5.27.jar]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:tomcat-annotations-api:.*$</gav>
+        <cve>CVE-2016-5425</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[temp disable for prod release, spring boot 2 to the rescue]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2018-7489</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[temp disable for prod release, spring boot 2 to the rescue]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2017-14798</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[temp disable for prod release, spring boot 2 to the rescue]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2018-1304</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[temp disable for prod release, spring boot 2 to the rescue]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2018-1305</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[temp disable for prod release, spring boot 2 to the rescue]]></notes>
+        <gav regex="true">^org\.springframework:spring-context-support:.*$</gav>
+        <cve>CVE-2018-1199</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[Used only for testing not used in prod]]></notes>
+        <gav regex="true">^org\.testcontainers:postgresql:.*$</gav>
+        <cpe>cpe:/a:postgresql:postgresql</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[Related to Groovy LDAP API which is not used by the service]]></notes>
+        <gav regex="true">^org\.codehaus\.groovy:groovy-xml:.*$</gav>
+        <cpe>cpe:/a:apache:groovy</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[Related to Groovy LDAP API which is not used by the service]]></notes>
+        <gav regex="true">^org\.codehaus\.groovy:groovy-json:.*$</gav>
+        <cve>CVE-2016-6497</cve>
+    </suppress>
 </suppressions>
